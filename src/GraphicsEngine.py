@@ -7,7 +7,7 @@ import sys
 import logging
 
 from src.constants import PYGAME_CONSTANTS, OPENGL_CONSTANTS
-from src.classes.Triangle import Triangle
+from src.objects.Triangle import Triangle
 
 
 class GraphicsEngine:
@@ -51,7 +51,7 @@ class GraphicsEngine:
             # Create the context
             pg.display.set_mode(self._win_size, flags=pg.DOUBLEBUF | pg.OPENGL)
             # Detect and use existing OpenGL context
-            self.mgl_context = mgl.create_context()
+            self._mgl_context = mgl.create_context()
             # Create clock object for time management
             self._clock = pg.time.Clock()
 
@@ -78,7 +78,7 @@ class GraphicsEngine:
         """
         Renders the scene.
         """
-        self.mgl_context.clear(color=OPENGL_CONSTANTS.DEFAULT_SCENE_COLOUR)
+        self._mgl_context.clear(color=OPENGL_CONSTANTS.DEFAULT_SCENE_COLOUR)
         if self._scene:
             self._scene.render()
         pg.display.flip()
@@ -113,6 +113,18 @@ class GraphicsEngine:
         """
         if event_key in self._key_callbacks:
             self._key_callbacks[event_key]()
+
+    # ====== PROPERTIES ====== #
+
+    @property
+    def mgl_context(self) -> mgl.Context:
+        """
+        [READ-ONLY] Returns the moderngl context.
+
+        Returns:
+            mgl.Context: The moderngl context.
+        """
+        return self._mgl_context
 
     # ====== RUN ====== #
 

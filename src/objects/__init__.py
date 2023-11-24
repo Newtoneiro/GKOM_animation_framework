@@ -1,4 +1,4 @@
 # flake8: noqa
 
-from .GraphicsEngine import GraphicsEngine
+from .OpenGLObject import OpenGLObject
 from .Triangle import Triangle

@@ -1,4 +1,5 @@
 # flake8: noqa
-from .classes import GraphicsEngine
+from .objects import Triangle
+from .GraphicsEngine import GraphicsEngine
 
 from . import constants
