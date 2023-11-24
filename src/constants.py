@@ -21,4 +21,4 @@ class OPENGL_CONSTANTS:
     GL_CONTEXT_MAJOR_VERSION: int = 3
     GL_CONTEXT_MINOR_VERSION: int = 3
 
-    DEFAULT_SCENE_COLOUR: tuple[float] = (0.0, 0.0, 0.0, 1.0)
+    DEFAULT_SCENE_COLOUR: tuple[float] = (0.08, 0.16, 0.18)

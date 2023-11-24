@@ -59,23 +59,49 @@ class GraphicsEngine:
         Handles pygame events.
         """
         for event in pg.event.get():
-            if event.type == pg.QUIT or (
-                event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
-            ):
-                pg.quit()
-                sys.exit()
+            self._event_callbacks.get(event.type, lambda _: None)(event)
 
     def _render(self) -> None:
         """
         Renders the scene.
         """
-        self._mgl_context.clear(*OPENGL_CONSTANTS.DEFAULT_SCENE_COLOUR)
+        self._mgl_context.clear(color=OPENGL_CONSTANTS.DEFAULT_SCENE_COLOUR)
         pg.display.flip()
+
+    # ====== EVENT CALLBACKS ====== #
+
+    def _init_event_callbacks(self) -> None:
+        """
+        Initializes event callbacks.
+        """
+        self._event_callbacks = {
+            pg.QUIT: lambda _: self._handle_stop(),
+            pg.KEYDOWN: lambda event: self._handle_key_down(event.key),
+        }
+
+        self._key_callbacks = {
+            pg.K_ESCAPE: self._handle_stop,
+        }
+
+    def _handle_stop(self) -> None:
+        """
+        Handles the stop event.
+        """
+        pg.quit()
+        sys.exit()
+
+    def _handle_key_down(self, event_key: int) -> None:
+        """
+        Handles the key down event.
+        """
+        if event_key in self._key_callbacks:
+            self._key_callbacks[event_key]()
 
     def run(self) -> None:
         """
         Runs the graphics engine.
         """
+        self._init_event_callbacks()
         while True:
             self._check_events()
             self._render()
