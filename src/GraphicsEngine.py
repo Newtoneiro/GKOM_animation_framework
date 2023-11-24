@@ -5,8 +5,9 @@ import pygame as pg
 import moderngl as mgl
 import sys
 import logging
+import glm
 
-from src.constants import PYGAME_CONSTANTS, OPENGL_CONSTANTS
+from src.constants import PYGAME_CONSTANTS, OPENGL_CONSTANTS, CAMERA_CONSTANTS
 from src.objects.cube import Cube
 from src.camera import Camera
 
@@ -22,7 +23,9 @@ class GraphicsEngine:
             )
     ) -> None:
         self._win_size = win_size
+
         self._time = 0
+        self._delta_time = 0
 
         # Initialize prequisites
         if not all([self._init_pygame(), self._init_context()]):
@@ -30,6 +33,8 @@ class GraphicsEngine:
 
         self._init_camera()
         self._init_scene()
+
+    # ====== INITIALIZATION ====== #
 
     def _init_pygame(self) -> bool:
         """
@@ -92,53 +97,6 @@ class GraphicsEngine:
         """
         self._scene = Cube(self, texture_path="src/textures/crate.png")
 
-    def _check_events(self) -> None:
-        """
-        Handles pygame events.
-        """
-        for event in pg.event.get():
-            self._event_callbacks.get(event.type, lambda _: None)(event)
-
-    def _render(self) -> None:
-        """
-        Renders the scene.
-        """
-        self._mgl_context.clear(color=OPENGL_CONSTANTS.DEFAULT_SCENE_COLOUR)
-        if self._scene:
-            self._scene.render()
-        pg.display.flip()
-
-    # ====== EVENT CALLBACKS ====== #
-
-    def _init_event_callbacks(self) -> None:
-        """
-        Initializes event callbacks.
-        """
-        self._event_callbacks = {
-            pg.QUIT: lambda _: self._handle_stop(),
-            pg.KEYDOWN: lambda event: self._handle_key_down(event.key),
-        }
-
-        self._key_callbacks = {
-            pg.K_ESCAPE: self._handle_stop,
-        }
-
-    def _handle_stop(self) -> None:
-        """
-        Handles the stop event.
-        """
-        if self._scene:
-            self._scene.destroy()
-        pg.quit()
-        sys.exit()
-
-    def _handle_key_down(self, event_key: int) -> None:
-        """
-        Handles the key down event.
-        """
-        if event_key in self._key_callbacks:
-            self._key_callbacks[event_key]()
-
     # ====== PROPERTIES ====== #
 
     @property
@@ -181,7 +139,120 @@ class GraphicsEngine:
         """
         return self._camera
 
-    # ====== RUN ====== #
+    def _check_events(self) -> None:
+        """
+        Handles pygame events.
+        """
+        # Key down events
+        for event in pg.event.get():
+            self._event_callbacks.get(event.type, lambda _: None)(event)
+
+        # Key pressed events
+        if any(pg.key.get_pressed()):
+            for key, callback in self._key_pressed_callbacks.items():
+                if pg.key.get_pressed()[key]:
+                    callback()
+
+    def _render(self) -> None:
+        """
+        Renders the scene.
+        """
+        self._mgl_context.clear(color=OPENGL_CONSTANTS.DEFAULT_SCENE_COLOUR)
+        if self._scene:
+            self._scene.render()
+        pg.display.flip()
+
+    def _update_time(self) -> None:
+        """
+        Updates the time.
+        """
+        self._time = pg.time.get_ticks() / 1000
+        self._delta_time = self._clock.tick(PYGAME_CONSTANTS.FPS)
+
+    # ====== EVENT CALLBACKS ====== #
+
+    def _init_event_callbacks(self) -> None:
+        """
+        Initializes event callbacks.
+        """
+        self._event_callbacks = {
+            pg.QUIT: lambda _: self._handle_stop(),
+            pg.KEYDOWN: lambda event: self._handle_key_down(event.key),
+        }
+
+        self._key_down_callbacks = {
+            pg.K_ESCAPE: self._handle_stop,
+        }
+
+        self._key_pressed_callbacks = {
+            pg.K_w: self._handle_camera_move_forward,
+            pg.K_s: self._handle_camera_move_backward,
+            pg.K_a: self._handle_camera_move_left,
+            pg.K_d: self._handle_camera_move_right,
+            pg.K_q: self._handle_camera_move_up,
+            pg.K_e: self._handle_camera_move_down,
+        }
+
+    def _handle_stop(self) -> None:
+        """
+        Handles the stop event.
+        """
+        if self._scene:
+            self._scene.destroy()
+        pg.quit()
+        sys.exit()
+
+    def _handle_key_down(self, event_key: int) -> None:
+        """
+        Handles the key down event.
+        """
+        if event_key in self._key_down_callbacks:
+            self._key_down_callbacks[event_key]()
+
+    def _camera_move(self, update_vector: glm.vec3) -> None:
+        """
+        Handles the camera movement.
+        """
+        velocity = CAMERA_CONSTANTS.DEFAULT_CAMERA_SPEED * self._delta_time
+        self._camera.move(update_vector * velocity)
+
+    def _handle_camera_move_forward(self) -> None:
+        """
+        Handles the camera movement forward.
+        """
+        self._camera_move(glm.vec3(0, 0, -1))
+
+    def _handle_camera_move_backward(self) -> None:
+        """
+        Handles the camera movement backward.
+        """
+        self._camera_move(glm.vec3(0, 0, 1))
+
+    def _handle_camera_move_left(self) -> None:
+        """
+        Handles the camera movement left.
+        """
+        self._camera_move(glm.vec3(-1, 0, 0))
+
+    def _handle_camera_move_right(self) -> None:
+        """
+        Handles the camera movement right.
+        """
+        self._camera_move(glm.vec3(1, 0, 0))
+
+    def _handle_camera_move_up(self) -> None:
+        """
+        Handles the camera movement up.
+        """
+        self._camera_move(glm.vec3(0, 1, 0))
+
+    def _handle_camera_move_down(self) -> None:
+        """
+        Handles the camera movement down.
+        """
+        self._camera_move(glm.vec3(0, -1, 0))
+
+    # ====== PUBLIC METHODS ====== #
 
     def run(self) -> None:
         """
@@ -189,8 +260,6 @@ class GraphicsEngine:
         """
         self._init_event_callbacks()
         while True:
-            self._time = pg.time.get_ticks() / 1000
-
             self._check_events()
             self._render()
-            self._clock.tick(PYGAME_CONSTANTS.FPS)
+            self._update_time()

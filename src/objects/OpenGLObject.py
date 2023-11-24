@@ -163,6 +163,8 @@ class OpenGLObject(ABC):
             texture_path (str): The path to the texture.
         """
         texture = pg.image.load(texture_path).convert()
+        # Flip because Pygame's y-axis is inverted
+        texture = pg.transform.flip(texture, flip_x=False, flip_y=True)
         texture = self._mgl_context.texture(
             size=texture.get_size(),
             components=3,

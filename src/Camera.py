@@ -18,6 +18,7 @@ class Camera:
     def __init__(self, app: GraphicsEngine) -> None:
         self._app = app
         self._aspect_ratio = app.win_size[0] / app.win_size[1]
+        self._position = glm.vec3(2, 3, 3)
 
     # ====== PROPERTIES ====== #
 
@@ -58,9 +59,16 @@ class Camera:
         Returns:
             glm.mat4: The view matrix for the camera.
         """
-        self._position = glm.vec3(2, 3, 3)
-        self._up = glm.vec3(0, 1, 0)
-
         return glm.lookAt(
-            self._position, glm.vec3(0, 0, 0), self._up
+            self._position,
+            self._position + glm.vec3(0, 0, -1),
+            glm.vec3(0, 1, 0)
         )
+
+    # ====== PUBLIC METHODS ====== #
+
+    def move(self, update_vector: glm.vec3) -> None:
+        """
+        Moves the camera.
+        """
+        self._position += update_vector
