@@ -29,7 +29,7 @@ class Cube(OpenGLObject):
 
         vertex_data = self.get_data(vertices, indices)
 
-        if self._is_textured:
+        if self._texture is not None:
             tex_coords = [(0, 0), (1, 0), (1, 1), (0, 1)]
             tex_coord_indices = [(0, 2, 3), (0, 1, 2),
                                  (0, 2, 3), (0, 1, 2),

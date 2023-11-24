@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 from abc import ABC, abstractmethod
 import numpy as np
 import moderngl as mgl
+import pygame as pg
 import glm
 
 from src.constants import OPENGL_CONSTANTS
@@ -24,13 +25,13 @@ class OpenGLObject(ABC):
         app: GraphicsEngine,
         shader_program: str = OPENGL_CONSTANTS.DEFAULT_SHADER,
         pre_render: bool = True,
-        is_textured: bool = False
+        texture_path: str = None
     ) -> None:
         self._app = app
         self._shader_program = shader_program
         self._mgl_context = app.mgl_context
         self._shader_program = shader_program
-        self._is_textured = is_textured
+        self.texture = texture_path
 
         if pre_render:
             self._pre_render()
@@ -88,7 +89,7 @@ class OpenGLObject(ABC):
         Returns:
             mgl.VertexArray: The vertex array object for the OpenGlObject.
         """
-        if self._is_textured:
+        if self._texture is not None:
             vertex_array = self._mgl_context.vertex_array(
                 self._shader_program, [
                     (self._vbo, "2f 3f", "in_texcoord_0", "in_position")
@@ -133,13 +134,41 @@ class OpenGLObject(ABC):
         """
         return glm.mat4()
 
-    def _write_camera(self) -> None:
+    def _write_shader(self) -> None:
         """
-        Writes the camera to the shader program.
+        Writes the pvm to the shader program.
         """
+        self._write_texture()
+
         self._shader_program["m_proj"].write(self._app.camera.m_proj)
         self._shader_program["m_view"].write(self._app.camera.m_view)
         self._shader_program["m_model"].write(self.m_model)
+
+    def _write_texture(self) -> None:
+        """
+        Writes the texture to the shader program.
+        """
+        if self.texture is not None:
+            self._shader_program["u_texture_0"] = 0
+            self._texture.use()
+
+    def _load_texture(self, texture_path: str) -> mgl.Texture:
+        """
+        Returns the texture for the OpenGlObject.
+
+        Returns:
+            mgl.Texture: The texture for the OpenGlObject.
+
+        Args:
+            texture_path (str): The path to the texture.
+        """
+        texture = pg.image.load(texture_path).convert()
+        texture = self._mgl_context.texture(
+            size=texture.get_size(),
+            components=3,
+            data=pg.image.tostring(texture, "RGB")
+        )
+        return texture
 
     # ====== PROPERTIES ====== #
 
@@ -149,6 +178,26 @@ class OpenGLObject(ABC):
         [READ-ONLY] glm.mat4: The model matrix for the OpenGlObject.
         """
         return self._get_model_matrix()
+
+    @property
+    def texture(self) -> mgl.Texture:
+        """
+        mgl.Texture: The texture for the OpenGlObject.
+        """
+        return self._texture
+
+    @texture.setter
+    def texture(self, texture_path: str) -> None:
+        """
+        Sets the texture for the OpenGlObject.
+
+        Args:
+            texture_path (str): The path to the texture.
+        """
+        if texture_path is not None:
+            self._texture = self._load_texture(texture_path)
+        else:
+            self._texture = None
 
     # ====== PUBLIC METHODS ====== #
 
@@ -166,7 +215,7 @@ class OpenGLObject(ABC):
         if not self._pre_rendered:
             self._pre_render()
 
-        self._write_camera()
+        self._write_shader()
         self.update()  # tmp to show the spin
         self._vao.render()
 

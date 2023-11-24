@@ -24,8 +24,10 @@ class GraphicsEngine:
         self._win_size = win_size
         self._time = 0
 
-        if not self._init_pygame():
-            raise RuntimeError("Could not initialize pygame.")
+        # Initialize prequisites
+        if not all([self._init_pygame(), self._init_context()]):
+            raise RuntimeError("Could not initialize.")
+
         self._init_camera()
         self._init_scene()
 
@@ -52,13 +54,28 @@ class GraphicsEngine:
             )
             # Create the context
             pg.display.set_mode(self._win_size, flags=pg.DOUBLEBUF | pg.OPENGL)
-            # Detect and use existing OpenGL context
-            self._mgl_context = mgl.create_context()
             # Create clock object for time management
             self._clock = pg.time.Clock()
 
         except pg.error as err:
             logging.error(f"Could not initialize pygame: {err}")
+            return False
+
+        return True
+
+    def _init_context(self) -> bool:
+        """
+        Initializes the moderngl context.
+
+        Returns:
+            bool: True if the moderngl context was initialized successfully,
+            False otherwise.
+        """
+        try:
+            self._mgl_context = mgl.create_context()
+            self._mgl_context.enable(mgl.DEPTH_TEST | mgl.CULL_FACE)
+        except mgl.Error as err:
+            logging.error(f"Could not initialize moderngl: {err}")
             return False
 
         return True
@@ -73,7 +90,7 @@ class GraphicsEngine:
         """
         Initializes the scene.
         """
-        self._scene = Cube(self, is_textured=True)
+        self._scene = Cube(self, texture_path="src/textures/crate.png")
 
     def _check_events(self) -> None:
         """
