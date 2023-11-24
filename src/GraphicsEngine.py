@@ -7,7 +7,8 @@ import sys
 import logging
 
 from src.constants import PYGAME_CONSTANTS, OPENGL_CONSTANTS
-from src.objects.Triangle import Triangle
+from src.objects.Cube import Cube
+from src.Camera import Camera
 
 
 class GraphicsEngine:
@@ -21,10 +22,11 @@ class GraphicsEngine:
             )
     ) -> None:
         self._win_size = win_size
+        self._time = 0
 
         if not self._init_pygame():
             raise RuntimeError("Could not initialize pygame.")
-
+        self._init_camera()
         self._init_scene()
 
     def _init_pygame(self) -> bool:
@@ -61,11 +63,17 @@ class GraphicsEngine:
 
         return True
 
+    def _init_camera(self) -> None:
+        """
+        Initializes the camera.
+        """
+        self._camera = Camera(self)
+
     def _init_scene(self) -> None:
         """
         Initializes the scene.
         """
-        self._scene = Triangle(self)
+        self._scene = Cube(self)
 
     def _check_events(self) -> None:
         """
@@ -117,6 +125,26 @@ class GraphicsEngine:
     # ====== PROPERTIES ====== #
 
     @property
+    def time(self) -> float:
+        """
+        [READ-ONLY] Returns the time since the last frame.
+
+        Returns:
+            float: The time since the last frame.
+        """
+        return self._time
+
+    @property
+    def win_size(self) -> tuple[int]:
+        """
+        [READ-ONLY] Returns the window size.
+
+        Returns:
+            tuple[int]: The window size.
+        """
+        return self._win_size
+
+    @property
     def mgl_context(self) -> mgl.Context:
         """
         [READ-ONLY] Returns the moderngl context.
@@ -126,6 +154,16 @@ class GraphicsEngine:
         """
         return self._mgl_context
 
+    @property
+    def camera(self) -> Camera:
+        """
+        [READ-ONLY] Returns the camera.
+
+        Returns:
+            Camera: The camera.
+        """
+        return self._camera
+
     # ====== RUN ====== #
 
     def run(self) -> None:
@@ -134,6 +172,8 @@ class GraphicsEngine:
         """
         self._init_event_callbacks()
         while True:
+            self._time = pg.time.get_ticks() / 1000
+
             self._check_events()
             self._render()
             self._clock.tick(PYGAME_CONSTANTS.FPS)

@@ -24,3 +24,13 @@ class OPENGL_CONSTANTS:
     DEFAULT_SCENE_COLOUR: tuple[float] = (0.08, 0.16, 0.18)
 
     DEFAULT_SHADER: str = "default"
+
+
+class CAMERA_CONSTANTS:
+    """
+    Constants for camera config.
+    """
+
+    DEFAULT_CAMERA_FOV: float = 50.0
+    DEFAULT_CAMERA_NEAR_TRESHOLD: float = 0.1
+    DEFAULT_CAMERA_FAR_TRESHOLD: float = 100.0

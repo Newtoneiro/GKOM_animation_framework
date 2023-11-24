@@ -8,7 +8,7 @@ from src.objects.OpenGLObject import OpenGLObject
 
 class Triangle(OpenGLObject):
     """
-    Class for a triangle.
+    Class for a triangle abstraction.
     """
 
     def _get_vertex_data(self) -> np.ndarray:

@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 from abc import ABC, abstractmethod
 import numpy as np
 import moderngl as mgl
+import glm
 
 from src.constants import OPENGL_CONSTANTS
 
@@ -37,6 +38,23 @@ class OpenGLObject(ABC):
     @abstractmethod
     def _get_vertex_data(self) -> np.ndarray:
         ...
+
+    # ====== STATIC METHODS ====== #
+
+    @staticmethod
+    def get_data(vertices: np.array, indices: np.array) -> np.ndarray:
+        """
+        Returns the vertex data for the OpenGlObject.
+
+        Args:
+            vertices (np.array): The vertices of the OpenGlObject.
+            indices (np.array): The indices of the OpenGlObject.
+
+        Returns:
+            np.ndarray: The vertex data for the OpenGlObject.
+        """
+        data = [vertices[ind] for triangle in indices for ind in triangle]
+        return np.array(data, dtype=np.float32)
 
     # ====== PRIVATE METHODS ====== #
 
@@ -95,7 +113,40 @@ class OpenGLObject(ABC):
 
         return program
 
+    def _get_model_matrix(self) -> np.ndarray:
+        """
+        Returns the model matrix for the OpenGlObject.
+
+        Returns:
+            np.ndarray: The model matrix for the OpenGlObject.
+        """
+        return glm.mat4()
+
+    def _write_camera(self) -> None:
+        """
+        Writes the camera to the shader program.
+        """
+        self._shader_program["m_proj"].write(self._app.camera.m_proj)
+        self._shader_program["m_view"].write(self._app.camera.m_view)
+        self._shader_program["m_model"].write(self.m_model)
+
+    # ====== PROPERTIES ====== #
+
+    @property
+    def m_model(self) -> glm.mat4:
+        """
+        [READ-ONLY] glm.mat4: The model matrix for the OpenGlObject.
+        """
+        return self._get_model_matrix()
+
     # ====== PUBLIC METHODS ====== #
+
+    def update(self) -> None:  # TMP to show the spin
+        """
+        Spins the OpenGlObject.
+        """
+        m_model = glm.rotate(self.m_model, self._app.time, glm.vec3(0, 1, 0))
+        self._shader_program["m_model"].write(m_model)
 
     def render(self) -> None:
         """
@@ -104,6 +155,8 @@ class OpenGLObject(ABC):
         if not self._pre_rendered:
             self._pre_render()
 
+        self._write_camera()
+        self.update()  # tmp to show the spin
         self._vao.render()
 
     def destroy(self) -> None:
