@@ -22,3 +22,5 @@ class OPENGL_CONSTANTS:
     GL_CONTEXT_MINOR_VERSION: int = 3
 
     DEFAULT_SCENE_COLOUR: tuple[float] = (0.08, 0.16, 0.18)
+
+    DEFAULT_SHADER: str = "default"

@@ -7,6 +7,7 @@ import sys
 import logging
 
 from src.constants import PYGAME_CONSTANTS, OPENGL_CONSTANTS
+from src.classes.Triangle import Triangle
 
 
 class GraphicsEngine:
@@ -24,9 +25,14 @@ class GraphicsEngine:
         if not self._init_pygame():
             raise RuntimeError("Could not initialize pygame.")
 
+        self._init_scene()
+
     def _init_pygame(self) -> bool:
         """
         Initializes pygame.
+
+        Returns:
+            bool: True if pygame was initialized successfully, False otherwise.
         """
         try:
             pg.init()
@@ -45,14 +51,21 @@ class GraphicsEngine:
             # Create the context
             pg.display.set_mode(self._win_size, flags=pg.DOUBLEBUF | pg.OPENGL)
             # Detect and use existing OpenGL context
-            self._mgl_context = mgl.create_context()
+            self.mgl_context = mgl.create_context()
             # Create clock object for time management
             self._clock = pg.time.Clock()
+
         except pg.error as err:
             logging.error(f"Could not initialize pygame: {err}")
             return False
 
         return True
+
+    def _init_scene(self) -> None:
+        """
+        Initializes the scene.
+        """
+        self._scene = Triangle(self)
 
     def _check_events(self) -> None:
         """
@@ -65,7 +78,9 @@ class GraphicsEngine:
         """
         Renders the scene.
         """
-        self._mgl_context.clear(color=OPENGL_CONSTANTS.DEFAULT_SCENE_COLOUR)
+        self.mgl_context.clear(color=OPENGL_CONSTANTS.DEFAULT_SCENE_COLOUR)
+        if self._scene:
+            self._scene.render()
         pg.display.flip()
 
     # ====== EVENT CALLBACKS ====== #
@@ -87,6 +102,8 @@ class GraphicsEngine:
         """
         Handles the stop event.
         """
+        if self._scene:
+            self._scene.destroy()
         pg.quit()
         sys.exit()
 
@@ -96,6 +113,8 @@ class GraphicsEngine:
         """
         if event_key in self._key_callbacks:
             self._key_callbacks[event_key]()
+
+    # ====== RUN ====== #
 
     def run(self) -> None:
         """
