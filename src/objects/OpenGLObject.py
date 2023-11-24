@@ -4,7 +4,7 @@ This file contains the abstract Object class.
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from src.GraphicsEngine import GraphicsEngine
+    from src.graphicsEngine import GraphicsEngine
 
 from abc import ABC, abstractmethod
 import numpy as np
@@ -24,11 +24,13 @@ class OpenGLObject(ABC):
         app: GraphicsEngine,
         shader_program: str = OPENGL_CONSTANTS.DEFAULT_SHADER,
         pre_render: bool = True,
+        is_textured: bool = False
     ) -> None:
         self._app = app
         self._shader_program = shader_program
         self._mgl_context = app.mgl_context
         self._shader_program = shader_program
+        self._is_textured = is_textured
 
         if pre_render:
             self._pre_render()
@@ -86,9 +88,18 @@ class OpenGLObject(ABC):
         Returns:
             mgl.VertexArray: The vertex array object for the OpenGlObject.
         """
-        return self._mgl_context.vertex_array(
-            self._shader_program, [(self._vbo, "3f", "in_position")]
-        )
+        if self._is_textured:
+            vertex_array = self._mgl_context.vertex_array(
+                self._shader_program, [
+                    (self._vbo, "2f 3f", "in_texcoord_0", "in_position")
+                    ]
+                )
+        else:
+            vertex_array = self._mgl_context.vertex_array(
+                self._shader_program, [(self._vbo, "3f", "in_position")]
+                )
+
+        return vertex_array
 
     def _get_shader_program(self, shader_name: str) -> mgl.Program:
         """

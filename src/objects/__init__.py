@@ -1,5 +1,5 @@
 # flake8: noqa
 
-from .OpenGLObject import OpenGLObject
-from .Triangle import Triangle
-from .Cube import Cube
+from .openGLObject import OpenGLObject
+from .triangle import Triangle
+from .cube import Cube

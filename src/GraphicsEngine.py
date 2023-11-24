@@ -7,8 +7,8 @@ import sys
 import logging
 
 from src.constants import PYGAME_CONSTANTS, OPENGL_CONSTANTS
-from src.objects.Cube import Cube
-from src.Camera import Camera
+from src.objects.cube import Cube
+from src.camera import Camera
 
 
 class GraphicsEngine:
@@ -73,7 +73,7 @@ class GraphicsEngine:
         """
         Initializes the scene.
         """
-        self._scene = Cube(self)
+        self._scene = Cube(self, is_textured=True)
 
     def _check_events(self) -> None:
         """

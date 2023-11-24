@@ -3,7 +3,7 @@ This file contains the Triangle class.
 """
 import numpy as np
 
-from src.objects.OpenGLObject import OpenGLObject
+from src.objects.openGLObject import OpenGLObject
 
 
 class Triangle(OpenGLObject):
