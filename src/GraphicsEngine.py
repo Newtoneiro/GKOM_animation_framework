@@ -7,8 +7,10 @@ import sys
 import logging
 
 from src.constants import PYGAME_CONSTANTS, OPENGL_CONSTANTS
-from src.objects.cube import Cube
-from src.camera import Camera
+from src.objects.Cube import Cube
+from src.objects.Model3D import Model3D
+from src.Camera import Camera
+from src.light import Light
 
 
 class GraphicsEngine:
@@ -32,6 +34,7 @@ class GraphicsEngine:
 
         self._init_camera()
         self._init_scene()
+        self._init_light()
 
     # ====== INITIALIZATION ====== #
 
@@ -97,7 +100,17 @@ class GraphicsEngine:
         """
         Initializes the scene.
         """
-        self._scene = Cube(self, texture_path="src/textures/crate.png")
+        self._scene = [
+            Cube(self, texture_path="src/textures/crate.png", pos=(-2.5, 0, 0), rot=(45, 0, 0), scale=(1, 2, 1)),
+            Cube(self, texture_path="src/textures/crate.png", pos=(2.5, 0, 0), rot=(0, 0, 45), scale=(1, 1, 2)),
+            Model3D(self, texture_path="src/models/cat/20430_cat_diff_v1.jpg", object_path="src/models/cat/20430_Cat_v1_NEW.obj", scale=(0.2, 0.2, 0.2))
+        ]
+
+    def _init_light(self) -> None:
+        """
+        Initializes the light.
+        """
+        self._light = Light()
 
     # ====== PROPERTIES ====== #
 
@@ -164,8 +177,8 @@ class GraphicsEngine:
         Renders the scene.
         """
         self._mgl_context.clear(color=OPENGL_CONSTANTS.DEFAULT_SCENE_COLOUR)
-        if self._scene:
-            self._scene.render()
+        for obj in self._scene:
+            obj.render()
         pg.display.flip()
 
     def _update_time(self) -> None:

@@ -4,7 +4,7 @@ This file contains the abstract Object class.
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from src.graphicsEngine import GraphicsEngine
+    from src.GraphicsEngine import GraphicsEngine
 
 from abc import ABC, abstractmethod
 import numpy as np
@@ -25,9 +25,15 @@ class OpenGLObject(ABC):
         app: GraphicsEngine,
         shader_program: str = OPENGL_CONSTANTS.DEFAULT_SHADER,
         pre_render: bool = True,
-        texture_path: str = None
+        texture_path: str = None,
+        pos: tuple[float] = (0, 0, 0),
+        rot: tuple[float] = (0, 0, 0),
+        scale: tuple[float] = (1, 1, 1)
     ) -> None:
         self._app = app
+        self._pos = pos
+        self._rot = glm.vec3([glm.radians(a) for a in rot])
+        self._scale = scale
         self._shader_program = shader_program
         self._mgl_context = app.mgl_context
         self._shader_program = shader_program
@@ -92,7 +98,7 @@ class OpenGLObject(ABC):
         if self._texture is not None:
             vertex_array = self._mgl_context.vertex_array(
                 self._shader_program, [
-                    (self._vbo, "2f 3f", "in_texcoord_0", "in_position")
+                    (self._vbo, "2f 3f 3f", "in_texcoord_0", "in_normal", "in_position")
                     ]
                 )
         else:
@@ -132,13 +138,58 @@ class OpenGLObject(ABC):
         Returns:
             np.ndarray: The model matrix for the OpenGlObject.
         """
-        return glm.mat4()
+        m_model = glm.mat4()
+        m_model = self._get_translation_matrix(m_model)
+        m_model = self._get_rotation_matrix(m_model)
+        m_model = self._get_scaling_matrix(m_model)
+        return m_model
+    
+    def _get_translation_matrix(self, m_model) -> np.ndarray:
+        """
+        Returns the model translation matrix for the OpenGlObject.
+
+        Args:
+            m_model (np.ndarray): The model matrix.
+
+        Returns:
+            np.ndarray: The model translation matrix for the OpenGlObject.
+        """
+        return glm.translate(m_model, self._pos)
+    
+    def _get_rotation_matrix(self, m_model) -> np.ndarray:
+        """
+        Returns the model rotation matrix for the OpenGlObject.
+
+        Args:
+            m_model (np.ndarray): The model matrix.
+
+        Returns:
+            np.ndarray: The model rotation matrix for the OpenGlObject.
+        """
+        m_model = glm.rotate(m_model, self._rot.x, glm.vec3(1, 0, 0))
+        m_model = glm.rotate(m_model, self._rot.y, glm.vec3(0, 1, 0))
+        m_model = glm.rotate(m_model, self._rot.z, glm.vec3(0, 0, 1))
+        return m_model
+    
+    def _get_scaling_matrix(self, m_model) -> np.ndarray:
+        """
+        Returns the model scaling matrix for the OpenGlObject.
+
+        Args:
+            m_model (np.ndarray): The model matrix.
+
+        Returns:
+            np.ndarray: The model scaling matrix for the OpenGlObject.
+        """
+        return glm.scale(m_model, self._scale)
+
 
     def _write_shader(self) -> None:
         """
         Writes the pvm to the shader program.
         """
         self._write_texture()
+        self._write_lighing()
 
         self._shader_program["m_proj"].write(self._app.camera.m_proj)
         self._shader_program["m_view"].write(self._app.camera.m_view)
@@ -151,6 +202,15 @@ class OpenGLObject(ABC):
         if self.texture is not None:
             self._shader_program["u_texture_0"] = 0
             self._texture.use()
+
+    def _write_lighing(self) -> None:
+        """
+        Writes the lighting to the shader program.
+        """
+        self._shader_program["light.position"].write(self._app._light.position)
+        self._shader_program["light.Ia"].write(self._app._light.Ia)
+        self._shader_program["light.Id"].write(self._app._light.Id)
+        self._shader_program["light.Is"].write(self._app._light.Is)
 
     def _load_texture(self, texture_path: str) -> mgl.Texture:
         """
@@ -209,6 +269,8 @@ class OpenGLObject(ABC):
         """
         m_model = glm.rotate(self.m_model, self._app.time, glm.vec3(0, 1, 0))
         self._shader_program["m_model"].write(m_model)
+        self._shader_program["m_view"].write(self._app.camera.m_view)
+        self._shader_program["camPos"].write(self._app.camera._position)
 
     def render(self) -> None:
         """
