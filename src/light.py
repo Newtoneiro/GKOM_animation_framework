@@ -2,12 +2,14 @@
 This file contains the Light class.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from src.GraphicsEngine import GraphicsEngine
 
-import pygame as pg
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.graphics_engine import GraphicsEngine
+
 import glm
+import pygame as pg
 
 from src.constants import LIGHT_CONSTANTS
 
@@ -16,6 +18,7 @@ class Light:
     """
     Class for a light abstraction.
     """
+
     def __init__(self) -> None:
         self._position = LIGHT_CONSTANTS.DEFAULT_LIGHT_POSITION
         self._color = LIGHT_CONSTANTS.DEFAULT_LIGHT_COLOR

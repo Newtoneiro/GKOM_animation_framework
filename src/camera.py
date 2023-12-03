@@ -2,12 +2,14 @@
 This file contains the Camera class.
 """
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from src.graphicsEngine import GraphicsEngine
 
-import pygame as pg
 import glm
+import pygame as pg
 
 from src.constants import CAMERA_CONSTANTS
 
@@ -16,6 +18,7 @@ class Camera:
     """
     Class for a camera abstraction.
     """
+
     def __init__(self, app: GraphicsEngine) -> None:
         self._app = app
         self._aspect_ratio = app.win_size[0] / app.win_size[1]
@@ -56,7 +59,7 @@ class Camera:
             glm.radians(CAMERA_CONSTANTS.DEFAULT_CAMERA_FOV),
             self._aspect_ratio,
             CAMERA_CONSTANTS.DEFAULT_CAMERA_NEAR_TRESHOLD,
-            CAMERA_CONSTANTS.DEFAULT_CAMERA_FAR_TRESHOLD
+            CAMERA_CONSTANTS.DEFAULT_CAMERA_FAR_TRESHOLD,
         )
 
     def _get_view_matrix(self) -> glm.mat4:
@@ -66,11 +69,7 @@ class Camera:
         Returns:
             glm.mat4: The view matrix for the camera.
         """
-        return glm.lookAt(
-            self._position,
-            self._position + self._forward,
-            self._up
-        )
+        return glm.lookAt(self._position, self._position + self._forward, self._up)
 
     def _move(self) -> None:
         """
@@ -111,9 +110,7 @@ class Camera:
         self._forward.z = glm.sin(yaw) * glm.cos(pitch)
 
         self._forward = glm.normalize(self._forward)
-        self._right = glm.normalize(
-            glm.cross(self._forward, glm.vec3(0, 1, 0))
-        )
+        self._right = glm.normalize(glm.cross(self._forward, glm.vec3(0, 1, 0)))
         self._up = glm.normalize(glm.cross(self._right, self._forward))
 
     # ====== PUBLIC METHODS ====== #

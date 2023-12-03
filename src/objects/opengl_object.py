@@ -3,8 +3,9 @@ This file contains the abstract Object class.
 """
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from src.GraphicsEngine import GraphicsEngine
+    from src.graphics_engine import GraphicsEngine
 
 from abc import ABC, abstractmethod
 import numpy as np
@@ -28,7 +29,7 @@ class OpenGLObject(ABC):
         texture_path: str = None,
         pos: tuple[float] = OPENGL_CONSTANTS.DEFAULT_POSITION,
         rot: tuple[float] = OPENGL_CONSTANTS.DEFAULT_ROTATION,
-        scale: tuple[float] = OPENGL_CONSTANTS.DEFAULT_SCALE
+        scale: tuple[float] = OPENGL_CONSTANTS.DEFAULT_SCALE,
     ) -> None:
         self._app = app
         self._pos = pos
@@ -72,9 +73,7 @@ class OpenGLObject(ABC):
         Pre-renders the OpenGlObject.
         """
         self._vbo = self._get_vbo()
-        self._shader_program = self._get_shader_program(
-            self._shader_program
-        )
+        self._shader_program = self._get_shader_program(self._shader_program)
         self._vao = self._get_vao()
 
         self._pre_rendered = True
@@ -97,14 +96,13 @@ class OpenGLObject(ABC):
         """
         if self._texture is not None:
             vertex_array = self._mgl_context.vertex_array(
-                self._shader_program, [
-                    (self._vbo, "2f 3f 3f", "in_texcoord_0", "in_normal", "in_position")
-                    ]
-                )
+                self._shader_program,
+                [(self._vbo, "2f 3f 3f", "in_texcoord_0", "in_normal", "in_position")],
+            )
         else:
             vertex_array = self._mgl_context.vertex_array(
                 self._shader_program, [(self._vbo, "3f", "in_position")]
-                )
+            )
 
         return vertex_array
 
@@ -125,8 +123,7 @@ class OpenGLObject(ABC):
             fragment_shader_source = f.read()
 
         program = self._mgl_context.program(
-            vertex_shader=vertex_shader_source,
-            fragment_shader=fragment_shader_source
+            vertex_shader=vertex_shader_source, fragment_shader=fragment_shader_source
         )
 
         return program
@@ -183,7 +180,6 @@ class OpenGLObject(ABC):
         """
         return glm.scale(m_model, self._scale)
 
-
     def _write_shader(self) -> None:
         """
         Writes the pvm to the shader program.
@@ -228,7 +224,7 @@ class OpenGLObject(ABC):
         texture = self._mgl_context.texture(
             size=texture.get_size(),
             components=3,
-            data=pg.image.tostring(texture, "RGB")
+            data=pg.image.tostring(texture, "RGB"),
         )
         return texture
 

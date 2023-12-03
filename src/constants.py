@@ -56,6 +56,7 @@ class LIGHT_CONSTANTS:
     """
     Constants for light config.
     """
+
     DEFAULT_LIGHT_STEP: float = 10
     DEFAULT_LIGHT_AMBIENT: float = 0.06
     DEFAULT_LIGHT_DIFFUSE: float = 0.8

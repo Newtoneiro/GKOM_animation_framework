@@ -1,16 +1,17 @@
 """
 This file contains the main class for the graphics engine.
 """
-import sys
 import logging
-import pygame as pg
-import moderngl as mgl
+import sys
 
-from src.constants import PYGAME_CONSTANTS, OPENGL_CONSTANTS
-from src.objects.Cube import Cube
-from src.objects.model_3d import Model3D
-from src.Camera import Camera
+import moderngl as mgl
+import pygame as pg
+
+from src.camera import Camera
+from src.constants import OPENGL_CONSTANTS, PYGAME_CONSTANTS
 from src.light import Light
+from src.objects.cube import Cube
+from src.objects.model_3d import Model3D
 
 
 class GraphicsEngine:
@@ -19,9 +20,7 @@ class GraphicsEngine:
     """
 
     def __init__(
-        self, win_size: tuple[int] = (
-            PYGAME_CONSTANTS.WIDTH, PYGAME_CONSTANTS.HEIGHT
-            )
+        self, win_size: tuple[int] = (PYGAME_CONSTANTS.WIDTH, PYGAME_CONSTANTS.HEIGHT)
     ) -> None:
         self._win_size = win_size
 
@@ -49,12 +48,10 @@ class GraphicsEngine:
             pg.init()
             # Set the OpenGL versions
             pg.display.gl_set_attribute(
-                pg.GL_CONTEXT_MAJOR_VERSION,
-                OPENGL_CONSTANTS.GL_CONTEXT_MAJOR_VERSION
+                pg.GL_CONTEXT_MAJOR_VERSION, OPENGL_CONSTANTS.GL_CONTEXT_MAJOR_VERSION
             )
             pg.display.gl_set_attribute(
-                pg.GL_CONTEXT_MINOR_VERSION,
-                OPENGL_CONSTANTS.GL_CONTEXT_MINOR_VERSION
+                pg.GL_CONTEXT_MINOR_VERSION, OPENGL_CONSTANTS.GL_CONTEXT_MINOR_VERSION
             )
             pg.display.gl_set_attribute(
                 pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE
@@ -106,21 +103,21 @@ class GraphicsEngine:
                 texture_path="src/textures/crate.png",
                 pos=(-2.5, 0, 0),
                 rot=(45, 0, 0),
-                scale=(1, 2, 1)
+                scale=(1, 2, 1),
             ),
             Cube(
                 self,
                 texture_path="src/textures/crate.png",
                 pos=(2.5, 0, 0),
                 rot=(0, 0, 45),
-                scale=(1, 1, 2)
+                scale=(1, 1, 2),
             ),
             Model3D(
                 self,
                 texture_path="src/models/cat/20430_cat_diff_v1.jpg",
                 object_path="src/models/cat/20430_Cat_v1_NEW.obj",
-                scale=(0.2, 0.2, 0.2)
-            )
+                scale=(0.2, 0.2, 0.2),
+            ),
         ]
 
     def _init_light(self) -> None:
