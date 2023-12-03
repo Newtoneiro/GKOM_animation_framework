@@ -26,9 +26,9 @@ class OpenGLObject(ABC):
         shader_program: str = OPENGL_CONSTANTS.DEFAULT_SHADER,
         pre_render: bool = True,
         texture_path: str = None,
-        pos: tuple[float] = (0, 0, 0),
-        rot: tuple[float] = (0, 0, 0),
-        scale: tuple[float] = (1, 1, 1)
+        pos: tuple[float] = OPENGL_CONSTANTS.DEFAULT_POSITION,
+        rot: tuple[float] = OPENGL_CONSTANTS.DEFAULT_ROTATION,
+        scale: tuple[float] = OPENGL_CONSTANTS.DEFAULT_SCALE
     ) -> None:
         self._app = app
         self._pos = pos
@@ -143,7 +143,7 @@ class OpenGLObject(ABC):
         m_model = self._get_rotation_matrix(m_model)
         m_model = self._get_scaling_matrix(m_model)
         return m_model
-    
+
     def _get_translation_matrix(self, m_model) -> np.ndarray:
         """
         Returns the model translation matrix for the OpenGlObject.
@@ -155,7 +155,7 @@ class OpenGLObject(ABC):
             np.ndarray: The model translation matrix for the OpenGlObject.
         """
         return glm.translate(m_model, self._pos)
-    
+
     def _get_rotation_matrix(self, m_model) -> np.ndarray:
         """
         Returns the model rotation matrix for the OpenGlObject.
@@ -170,7 +170,7 @@ class OpenGLObject(ABC):
         m_model = glm.rotate(m_model, self._rot.y, glm.vec3(0, 1, 0))
         m_model = glm.rotate(m_model, self._rot.z, glm.vec3(0, 0, 1))
         return m_model
-    
+
     def _get_scaling_matrix(self, m_model) -> np.ndarray:
         """
         Returns the model scaling matrix for the OpenGlObject.
@@ -207,10 +207,10 @@ class OpenGLObject(ABC):
         """
         Writes the lighting to the shader program.
         """
-        self._shader_program["light.position"].write(self._app._light.position)
-        self._shader_program["light.Ia"].write(self._app._light.Ia)
-        self._shader_program["light.Id"].write(self._app._light.Id)
-        self._shader_program["light.Is"].write(self._app._light.Is)
+        self._shader_program["light.position"].write(self._app.light.position)
+        self._shader_program["light.Ia"].write(self._app.light.ambient)
+        self._shader_program["light.Id"].write(self._app.light.diffuse)
+        self._shader_program["light.Is"].write(self._app.light.specular)
 
     def _load_texture(self, texture_path: str) -> mgl.Texture:
         """

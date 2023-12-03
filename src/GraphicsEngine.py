@@ -1,14 +1,14 @@
 """
 This file contains the main class for the graphics engine.
 """
-import pygame as pg
-import moderngl as mgl
 import sys
 import logging
+import pygame as pg
+import moderngl as mgl
 
 from src.constants import PYGAME_CONSTANTS, OPENGL_CONSTANTS
 from src.objects.Cube import Cube
-from src.objects.Model3D import Model3D
+from src.objects.model_3d import Model3D
 from src.Camera import Camera
 from src.light import Light
 
@@ -101,9 +101,26 @@ class GraphicsEngine:
         Initializes the scene.
         """
         self._scene = [
-            Cube(self, texture_path="src/textures/crate.png", pos=(-2.5, 0, 0), rot=(45, 0, 0), scale=(1, 2, 1)),
-            Cube(self, texture_path="src/textures/crate.png", pos=(2.5, 0, 0), rot=(0, 0, 45), scale=(1, 1, 2)),
-            Model3D(self, texture_path="src/models/cat/20430_cat_diff_v1.jpg", object_path="src/models/cat/20430_Cat_v1_NEW.obj", scale=(0.2, 0.2, 0.2))
+            Cube(
+                self,
+                texture_path="src/textures/crate.png",
+                pos=(-2.5, 0, 0),
+                rot=(45, 0, 0),
+                scale=(1, 2, 1)
+            ),
+            Cube(
+                self,
+                texture_path="src/textures/crate.png",
+                pos=(2.5, 0, 0),
+                rot=(0, 0, 45),
+                scale=(1, 1, 2)
+            ),
+            Model3D(
+                self,
+                texture_path="src/models/cat/20430_cat_diff_v1.jpg",
+                object_path="src/models/cat/20430_Cat_v1_NEW.obj",
+                scale=(0.2, 0.2, 0.2)
+            )
         ]
 
     def _init_light(self) -> None:
@@ -164,6 +181,16 @@ class GraphicsEngine:
         """
         return self._camera
 
+    @property
+    def light(self) -> Light:
+        """
+        [READ-ONLY] Returns the light.
+
+        Returns:
+            Light: The light.
+        """
+        return self._light
+
     def _check_events(self) -> None:
         """
         Handles pygame events.
@@ -207,8 +234,8 @@ class GraphicsEngine:
         """
         Handles the stop event.
         """
-        if self._scene:
-            self._scene.destroy()
+        for obj in self._scene:
+            obj.destroy()
         pg.quit()
         sys.exit()
 
@@ -229,5 +256,6 @@ class GraphicsEngine:
         while True:
             self._check_events()
             self._camera.update()
+            self._light.update()
             self._render()
             self._update_time()
