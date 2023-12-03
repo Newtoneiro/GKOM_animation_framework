@@ -26,9 +26,9 @@ class Model3D(OpenGLObject):
         shader_program: str = OPENGL_CONSTANTS.DEFAULT_SHADER,
         pre_render: bool = True,
         texture_path: str = None,
-        pos: tuple = (0, 0, 0),
-        rot: tuple = (0, 0, 0),
-        scale: tuple = (1, 1, 1),
+        pos: tuple[float] = OPENGL_CONSTANTS.DEFAULT_POSITION,
+        rot: tuple[float] = OPENGL_CONSTANTS.DEFAULT_ROTATION,
+        scale: tuple[float] = OPENGL_CONSTANTS.DEFAULT_SCALE
     ) -> None:
         self._object_path = object_path
         super().__init__(app, shader_program, pre_render, texture_path, pos, rot, scale)
