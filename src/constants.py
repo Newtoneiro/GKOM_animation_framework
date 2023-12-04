@@ -28,6 +28,10 @@ class OPENGL_CONSTANTS:
 
     DEFAULT_SHADER: str = "default"
 
+    DEFAULT_POSITION: tuple[float] = (0, 0, 0)
+    DEFAULT_ROTATION: tuple[float] = (0, 0, 0)
+    DEFAULT_SCALE: tuple[float] = (1, 1, 1)
+
 
 class CAMERA_CONSTANTS:
     """
@@ -46,3 +50,16 @@ class CAMERA_CONSTANTS:
     DEFAULT_CAMERA_RIGHT: glm.vec3 = glm.vec3(1, 0, 0)
     DEFAULT_CAMERA_YAW: float = -90.0
     DEFAULT_CAMERA_PITCH: float = 0.0
+
+
+class LIGHT_CONSTANTS:
+    """
+    Constants for light config.
+    """
+
+    DEFAULT_LIGHT_STEP: float = 10
+    DEFAULT_LIGHT_AMBIENT: float = 0.06
+    DEFAULT_LIGHT_DIFFUSE: float = 0.8
+    DEFAULT_LIGHT_SPECULAR: float = 1.0
+    DEFAULT_LIGHT_COLOR: glm.vec3 = glm.vec3(1, 1, 1)
+    DEFAULT_LIGHT_POSITION: glm.vec3 = glm.vec3(0, 30, 10)
