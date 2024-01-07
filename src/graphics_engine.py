@@ -13,14 +13,19 @@ from src.light import Light
 from src.objects.cube import Cube
 from src.objects.model_3d import Model3D
 
+from PyQt5.QtWidgets import QApplication, QMainWindow, QOpenGLWidget
+from PyQt5.QtCore import Qt, QTimer
+from OpenGL.GL import *
+from OpenGL.GLU import *
+import sys
 
-class GraphicsEngine:
+class GraphicsEngine(QOpenGLWidget):
     """
     Abstract class for the graphics engine.
     """
 
     def __init__(
-        self, win_size: tuple[int] = (PYGAME_CONSTANTS.WIDTH, PYGAME_CONSTANTS.HEIGHT)
+        self, win_size: tuple[int] = (PYGAME_CONSTANTS.WIDTH, PYGAME_CONSTANTS.HEIGHT), parent=None
     ) -> None:
         self._win_size = win_size
 
@@ -28,47 +33,49 @@ class GraphicsEngine:
         self._delta_time = 0
 
         # Initialize prequisites
-        if not all([self._init_pygame(), self._init_context()]):
-            raise RuntimeError("Could not initialize.")
+        # if not (self._init_context()):
+        #     raise RuntimeError("Could not initialize.")
 
-        self._init_camera()
-        self._init_scene()
-        self._init_light()
+        #self._init_camera()
+        #self._init_scene()
+        #self._init_light()
+        self._parent = parent
 
+        super(GraphicsEngine, self).__init__(parent)
     # ====== INITIALIZATION ====== #
 
-    def _init_pygame(self) -> bool:
-        """
-        Initializes pygame.
+    # def _init_pygame(self) -> bool:
+    #     """
+    #     Initializes pygame.
 
-        Returns:
-            bool: True if pygame was initialized successfully, False otherwise.
-        """
-        try:
-            pg.init()
-            # Set the OpenGL versions
-            pg.display.gl_set_attribute(
-                pg.GL_CONTEXT_MAJOR_VERSION, OPENGL_CONSTANTS.GL_CONTEXT_MAJOR_VERSION
-            )
-            pg.display.gl_set_attribute(
-                pg.GL_CONTEXT_MINOR_VERSION, OPENGL_CONSTANTS.GL_CONTEXT_MINOR_VERSION
-            )
-            pg.display.gl_set_attribute(
-                pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE
-            )
-            # Create the context
-            pg.display.set_mode(self._win_size, flags=pg.DOUBLEBUF | pg.OPENGL)
-            # Capture mouse
-            pg.event.set_grab(True)
-            pg.mouse.set_visible(False)
-            # Create clock object for time management
-            self._clock = pg.time.Clock()
+    #     Returns:
+    #         bool: True if pygame was initialized successfully, False otherwise.
+    #     """
+    #     try:
+    #         pg.init()
+    #         # Set the OpenGL versions
+    #         pg.display.gl_set_attribute(
+    #             pg.GL_CONTEXT_MAJOR_VERSION, OPENGL_CONSTANTS.GL_CONTEXT_MAJOR_VERSION
+    #         )
+    #         pg.display.gl_set_attribute(
+    #             pg.GL_CONTEXT_MINOR_VERSION, OPENGL_CONSTANTS.GL_CONTEXT_MINOR_VERSION
+    #         )
+    #         pg.display.gl_set_attribute(
+    #             pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE
+    #         )
+    #         # Create the context
+    #         pg.display.set_mode(self._win_size, flags=pg.DOUBLEBUF | pg.OPENGL)
+    #         # Capture mouse
+    #         pg.event.set_grab(True)
+    #         pg.mouse.set_visible(False)
+    #         # Create clock object for time management
+    #         self._clock = pg.time.Clock()
 
-        except pg.error as err:
-            logging.error(f"Could not initialize pygame: {err}")
-            return False
+        # except pg.error as err:
+        #     logging.error(f"Could not initialize pygame: {err}")
+        #     return False
 
-        return True
+        # return True
 
     def _init_context(self) -> bool:
         """
@@ -244,15 +251,34 @@ class GraphicsEngine:
             self._key_down_callbacks[event_key]()
 
     # ====== PUBLIC METHODS ====== #
+    def initializeGL(self) -> None:
+        if not (self._init_context()):
+            raise RuntimeError("Could not initialize.")
+        self._init_camera()
+        #loading textures needs rewriting
+        #self._init_scene()
+        self._init_light()
 
-    def run(self) -> None:
-        """
-        Runs the graphics engine.
-        """
-        self._init_event_callbacks()
-        while True:
-            self._check_events()
-            self._camera.update()
-            self._light.update()
-            self._render()
-            self._update_time()
+    def resizeGL(self, w, h) -> None:
+        self._mgl_context.viewport = (0, 0, self.width(), self.height())
+
+    def paintGL(self) -> None:
+        self._mgl_context.clear(color=(0.08, 0.16, 0.18, 1))
+        #camera and light movement needs rewriting
+        #self._camera.update()
+        #self._light.update()
+        #self._render()
+        self._mgl_context.finish()
+    
+    # def run(self) -> None:
+    #     """
+    #     Runs the graphics engine.
+    #     """
+    #     self._init_event_callbacks()
+    #     while True:
+    #         self._check_events()
+    #         self._camera.update()
+    #         self._light.update()
+    #         self._render()
+    #         self._update_time()
+
