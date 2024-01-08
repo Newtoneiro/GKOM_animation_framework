@@ -102,8 +102,7 @@ class Camera:
             self._position[2] -= velocity * self._up[2]
 
     def _rotate(self):
-        x = self._app._mouse_move[0]
-        y = self._app._mouse_move[1]
+        x, y = self._app._mouse_move
         self._yaw += x * CAMERA_CONSTANTS.DEFAULT_CAMERA_SENSITIVITY / 50
         self._pitch -= y * CAMERA_CONSTANTS.DEFAULT_CAMERA_SENSITIVITY / 50
         self._pitch = max(-89.0, min(89.0, self._pitch))

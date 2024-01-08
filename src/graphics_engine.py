@@ -31,6 +31,7 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
         self._key_pressed = None
         self._mouse = [0, 0]
         self._mouse_move = [0, 0]
+        self._capture_mouse = True
 
         fmt = QtOpenGL.QGLFormat()
         fmt.setVersion(3, 3)
@@ -212,8 +213,8 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
         self._mouse[1] = event.y()
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        self._mouse_move[0] = self._mouse[0] - event.x() 
-        self._mouse_move[1] = self._mouse[1] - event.y() 
+        self._mouse_move[0] = self._mouse[0] - event.x()
+        self._mouse_move[1] = self._mouse[1] - event.y()
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         self._mouse = [0, 0]
