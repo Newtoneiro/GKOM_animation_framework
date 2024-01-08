@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 import glm
 import pygame as pg
+from PyQt5.QtCore import Qt
 
 from src.constants import CAMERA_CONSTANTS
 
@@ -70,33 +71,41 @@ class Camera:
             glm.mat4: The view matrix for the camera.
         """
         return glm.lookAt(self._position, self._position + self._forward, self._up)
+    
 
-    def _move(self) -> None:
-        """
-        Moves the camera.
-        """
-        velocity = CAMERA_CONSTANTS.DEFAULT_CAMERA_SPEED * self._app.delta_time
-        keys = pg.key.get_pressed()
-        if keys[pg.K_w]:
-            self._position += velocity * self._forward
-        if keys[pg.K_s]:
-            self._position -= velocity * self._forward
-        if keys[pg.K_a]:
-            self._position -= velocity * self._right
-        if keys[pg.K_d]:
-            self._position += velocity * self._right
-        if keys[pg.K_SPACE]:
-            self._position += velocity * self._up
-        if keys[pg.K_LSHIFT]:
-            self._position -= velocity * self._up
+    def _move(self):
+        velocity = CAMERA_CONSTANTS.DEFAULT_CAMERA_SPEED * 3
+        direction = self._app._key_pressed
+        if direction == Qt.Key_W:
+            self._position[0] += velocity * self._forward[0]
+            self._position[1] += velocity * self._forward[1]
+            self._position[2] += velocity * self._forward[2]
+        elif direction == Qt.Key_S:
+            self._position[0] -= velocity * self._forward[0]
+            self._position[1] -= velocity * self._forward[1]
+            self._position[2] -= velocity * self._forward[2]
+        elif direction == Qt.Key_A:
+            self._position[0] -= velocity * self._right[0]
+            self._position[1] -= velocity * self._right[1]
+            self._position[2] -= velocity * self._right[2]
+        elif direction == Qt.Key_D:
+            self._position[0] += velocity * self._right[0]
+            self._position[1] += velocity * self._right[1]
+            self._position[2] += velocity * self._right[2]
+        elif direction == Qt.Key_Space:
+            self._position[0] += velocity * self._up[0]
+            self._position[1] += velocity * self._up[1]
+            self._position[2] += velocity * self._up[2]
+        elif direction == Qt.Key_Shift:
+            self._position[0] -= velocity * self._up[0]
+            self._position[1] -= velocity * self._up[1]
+            self._position[2] -= velocity * self._up[2]
 
-    def _rotate(self) -> None:
-        """
-        Rotates the camera.
-        """
-        rel_x, rel_y = pg.mouse.get_rel()
-        self._yaw += rel_x * CAMERA_CONSTANTS.DEFAULT_CAMERA_SENSITIVITY
-        self._pitch -= rel_y * CAMERA_CONSTANTS.DEFAULT_CAMERA_SENSITIVITY
+    def _rotate(self):
+        x = self._app._mouse_move[0]
+        y = self._app._mouse_move[1]
+        self._yaw += x * CAMERA_CONSTANTS.DEFAULT_CAMERA_SENSITIVITY / 50
+        self._pitch -= y * CAMERA_CONSTANTS.DEFAULT_CAMERA_SENSITIVITY / 50
         self._pitch = max(-89.0, min(89.0, self._pitch))
 
     def _update_camera_vectors(self) -> None:

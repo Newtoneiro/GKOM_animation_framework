@@ -12,6 +12,7 @@ import numpy as np
 import moderngl as mgl
 import pygame as pg
 import glm
+from PIL import Image
 
 from src.constants import OPENGL_CONSTANTS
 
@@ -210,23 +211,30 @@ class OpenGLObject(ABC):
 
     def _load_texture(self, texture_path: str) -> mgl.Texture:
         """
-        Returns the texture for the OpenGlObject.
+        Returns the texture for the OpenGL object.
 
         Returns:
-            mgl.Texture: The texture for the OpenGlObject.
+            mgl.Texture: The texture for the OpenGL object.
 
         Args:
             texture_path (str): The path to the texture.
         """
-        texture = pg.image.load(texture_path).convert()
-        # Flip because Pygame's y-axis is inverted
-        texture = pg.transform.flip(texture, flip_x=False, flip_y=True)
+        # Open the image using Pillow (PIL)
+        image = Image.open(texture_path)
+        # Flip the image because OpenGL's y-axis is inverted
+        image = image.transpose(Image.FLIP_TOP_BOTTOM)
+        # Convert the image to RGB mode (if not already)
+        image = image.convert("RGB")
+        # Get image data as bytes
+        image_data = image.tobytes()
+        # Create the moderngl texture
         texture = self._mgl_context.texture(
-            size=texture.get_size(),
+            size=image.size,
             components=3,
-            data=pg.image.tostring(texture, "RGB"),
+            data=image_data,
         )
         return texture
+
 
     # ====== PROPERTIES ====== #
 
@@ -263,7 +271,7 @@ class OpenGLObject(ABC):
         """
         Spins the OpenGlObject.
         """
-        m_model = glm.rotate(self.m_model, self._app.time, glm.vec3(0, 1, 0))
+        m_model = glm.rotate(self.m_model, self._app._time, glm.vec3(0, 1, 0))
         self._shader_program["m_model"].write(m_model)
         self._shader_program["m_view"].write(self._app.camera.m_view)
         self._shader_program["camPos"].write(self._app.camera._position)

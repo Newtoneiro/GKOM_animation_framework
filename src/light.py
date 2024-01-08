@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 import glm
 import pygame as pg
+from PyQt5.QtCore import Qt
 
 from src.constants import LIGHT_CONSTANTS
 
@@ -19,7 +20,8 @@ class Light:
     Class for a light abstraction.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, app: GraphicsEngine) -> None:
+        self._app = app
         self._position = LIGHT_CONSTANTS.DEFAULT_LIGHT_POSITION
         self._color = LIGHT_CONSTANTS.DEFAULT_LIGHT_COLOR
         self._ambient = LIGHT_CONSTANTS.DEFAULT_LIGHT_AMBIENT * self._color
@@ -81,18 +83,18 @@ class Light:
         Moves the light.
         """
         step = LIGHT_CONSTANTS.DEFAULT_LIGHT_STEP
-        keys = pg.key.get_pressed()
-        if keys[pg.K_UP]:
+        key = self._app._key_pressed
+        if key == Qt.Key_Up:
             self._position[1] += step
-        if keys[pg.K_DOWN]:
+        elif key == Qt.Key_Down:
             self._position[1] -= step
-        if keys[pg.K_RIGHT]:
+        elif key == Qt.Key_Right:
             self._position[0] += step
-        if keys[pg.K_LEFT]:
+        elif key == Qt.Key_Left:
             self._position[0] -= step
-        if keys[pg.K_KP4]:
+        elif key == Qt.Key_4:
             self._position[2] += step
-        if keys[pg.K_KP6]:
+        elif key == Qt.Key_6:
             self._position[2] -= step
 
     def update(self) -> None:
