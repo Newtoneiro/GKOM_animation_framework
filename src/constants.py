@@ -6,9 +6,9 @@ Constants defined for other files.
 import glm
 
 
-class PYGAME_CONSTANTS:
+class WINDOW_CONSTANTS:
     """
-    Constants for pygame config.
+    Constants for window config.
     """
 
     WIDTH: int = 1600
@@ -41,8 +41,8 @@ class CAMERA_CONSTANTS:
     DEFAULT_CAMERA_FOV: float = 50.0
     DEFAULT_CAMERA_NEAR_TRESHOLD: float = 0.1
     DEFAULT_CAMERA_FAR_TRESHOLD: float = 100.0
-    DEFAULT_CAMERA_SPEED: float = 0.01
-    DEFAULT_CAMERA_SENSITIVITY: float = 0.05
+    DEFAULT_CAMERA_SPEED: float = 0.2
+    DEFAULT_CAMERA_SENSITIVITY: float = 0.2
 
     DEFAULT_CAMERA_POSITION: glm.vec3 = glm.vec3(0, 0, 4)
     DEFAULT_CAMERA_FORWARD: glm.vec3 = glm.vec3(0, 0, -1)

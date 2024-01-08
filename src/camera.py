@@ -6,10 +6,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.graphicsEngine import GraphicsEngine
+    from src.graphics_engine import GraphicsEngine
 
 import glm
-import pygame as pg
 from PyQt5.QtCore import Qt
 
 from src.constants import CAMERA_CONSTANTS
@@ -70,8 +69,9 @@ class Camera:
         Returns:
             glm.mat4: The view matrix for the camera.
         """
-        return glm.lookAt(self._position, self._position + self._forward, self._up)
-    
+        return glm.lookAt(
+            self._position, self._position + self._forward, self._up
+        )
 
     def _move(self):
         velocity = CAMERA_CONSTANTS.DEFAULT_CAMERA_SPEED * 3
@@ -119,7 +119,9 @@ class Camera:
         self._forward.z = glm.sin(yaw) * glm.cos(pitch)
 
         self._forward = glm.normalize(self._forward)
-        self._right = glm.normalize(glm.cross(self._forward, glm.vec3(0, 1, 0)))
+        self._right = glm.normalize(
+            glm.cross(self._forward, glm.vec3(0, 1, 0))
+        )
         self._up = glm.normalize(glm.cross(self._right, self._forward))
 
     # ====== PUBLIC METHODS ====== #

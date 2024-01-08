@@ -1,6 +1,7 @@
-from src import GraphicsEngine, MainWindow
-from PyQt5.QtWidgets import QApplication
 import sys
+from PyQt5.QtWidgets import QApplication
+
+from src import MainWindow
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

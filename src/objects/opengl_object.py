@@ -10,7 +10,6 @@ if TYPE_CHECKING:
 from abc import ABC, abstractmethod
 import numpy as np
 import moderngl as mgl
-import pygame as pg
 import glm
 from PIL import Image
 
@@ -98,7 +97,15 @@ class OpenGLObject(ABC):
         if self._texture is not None:
             vertex_array = self._mgl_context.vertex_array(
                 self._shader_program,
-                [(self._vbo, "2f 3f 3f", "in_texcoord_0", "in_normal", "in_position")],
+                [
+                    (
+                        self._vbo,
+                        "2f 3f 3f",
+                        "in_texcoord_0",
+                        "in_normal",
+                        "in_position"
+                    )
+                ],
             )
         else:
             vertex_array = self._mgl_context.vertex_array(
@@ -124,7 +131,8 @@ class OpenGLObject(ABC):
             fragment_shader_source = f.read()
 
         program = self._mgl_context.program(
-            vertex_shader=vertex_shader_source, fragment_shader=fragment_shader_source
+            vertex_shader=vertex_shader_source,
+            fragment_shader=fragment_shader_source
         )
 
         return program
@@ -234,7 +242,6 @@ class OpenGLObject(ABC):
             data=image_data,
         )
         return texture
-
 
     # ====== PROPERTIES ====== #
 

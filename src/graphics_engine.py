@@ -5,10 +5,9 @@ import logging
 import sys
 
 import moderngl as mgl
-import pygame as pg
 
 from src.camera import Camera
-from src.constants import OPENGL_CONSTANTS, PYGAME_CONSTANTS
+from src.constants import OPENGL_CONSTANTS, WINDOW_CONSTANTS
 from src.light import Light
 from src.objects.cube import Cube
 from src.objects.model_3d import Model3D
@@ -16,7 +15,7 @@ from src.objects.model_3d import Model3D
 from PyQt5 import QtOpenGL
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
-import sys
+
 
 class GraphicsEngine(QtOpenGL.QGLWidget):
     """
@@ -24,11 +23,10 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
     """
 
     def __init__(
-        self, win_size: tuple[int] = (PYGAME_CONSTANTS.WIDTH, PYGAME_CONSTANTS.HEIGHT), parent=None
+        self, parent=None
     ) -> None:
-        self._win_size = win_size
+        self._win_size = (WINDOW_CONSTANTS.WIDTH, WINDOW_CONSTANTS.HEIGHT)
         self._time = 0
-        self._delta_time = 0
         self._parent = parent
         self._key_pressed = None
         self._mouse = [0, 0]
@@ -40,10 +38,7 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
         fmt.setSampleBuffers(True)
         super(GraphicsEngine, self).__init__(fmt, None)
         self.setFocusPolicy(Qt.StrongFocus)
-        
-        pg.init()
-        self._clock = pg.time.Clock()
-    
+
     # ====== INITIALIZATION ====== #
 
     def _init_context(self) -> bool:
@@ -115,16 +110,6 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
         return self._time
 
     @property
-    def delta_time(self) -> float:
-        """
-        [READ-ONLY] Returns the delta time.
-
-        Returns:
-            float: The delta time.
-        """
-        return self._delta_time
-
-    @property
     def win_size(self) -> tuple[int]:
         """
         [READ-ONLY] Returns the window size.
@@ -164,14 +149,6 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
         """
         return self._light
 
-    def _check_events(self) -> None:
-        """
-        Handles pygame events.
-        """
-        # Key down events
-        for event in pg.event.get():
-            self._event_callbacks.get(event.type, lambda _: None)(event)
-
     def _render(self) -> None:
         """
         Renders the scene.
@@ -182,25 +159,12 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
 
     def _update_time(self) -> None:
         """
-        Updates the time.
+        Updates the time based on the given ticks.
         """
-        self._time = pg.time.get_ticks() / 1000
-        self._delta_time = self._clock.tick(PYGAME_CONSTANTS.FPS)
+        self._time += 0.01
+        self._time = self._time % 1000
 
     # ====== EVENT CALLBACKS ====== #
-
-    def _init_event_callbacks(self) -> None:
-        """
-        Initializes event callbacks.
-        """
-        self._event_callbacks = {
-            pg.QUIT: lambda _: self._handle_stop(),
-            pg.KEYDOWN: lambda event: self._handle_key_down(event.key),
-        }
-
-        self._key_down_callbacks = {
-            pg.K_ESCAPE: self._handle_stop,
-        }
 
     def _handle_stop(self) -> None:
         """
@@ -208,7 +172,6 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
         """
         for obj in self._scene:
             obj.destroy()
-        pg.quit()
         sys.exit()
 
     def _handle_key_down(self, event_key: int) -> None:
@@ -237,11 +200,11 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
         self._render()
         self._update_time()
         self._mgl_context.finish()
-    
+
     def keyPressEvent(self, event: QKeyEvent):
         self._key_pressed = event.key()
 
-    def keyReleaseEvent(self, event: QKeyEvent) -> None:
+    def keyReleaseEvent(self, _: QKeyEvent) -> None:
         self._key_pressed = None
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
@@ -253,6 +216,5 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
         self._mouse_move[1] = self._mouse[1] - event.y() 
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        self._mouse = [0,0]
-        self._mouse_move = [0,0]
-
+        self._mouse = [0, 0]
+        self._mouse_move = [0, 0]

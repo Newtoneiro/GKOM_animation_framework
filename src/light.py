@@ -9,7 +9,6 @@ if TYPE_CHECKING:
     from src.graphics_engine import GraphicsEngine
 
 import glm
-import pygame as pg
 from PyQt5.QtCore import Qt
 
 from src.constants import LIGHT_CONSTANTS
