@@ -1,8 +1,22 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtWidgets import QMainWindow, QApplication, QHBoxLayout, QWidget
 from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QPalette, QColor
 
 from src.graphics_engine import GraphicsEngine
-from src.constants import WINDOW_CONSTANTS
+from src.gui import GUI
+from src.constants import (
+    WINDOW_CONSTANTS, GE_WIDGET_CONSTANTS, GUI_WIDGET_CONSTANTS)
+
+
+class Color(QWidget):
+
+    def __init__(self, color):
+        super(Color, self).__init__()
+        self.setAutoFillBackground(True)
+
+        palette = self.palette()
+        palette.setColor(QPalette.Window, QColor(color))
+        self.setPalette(palette)
 
 
 class MainWindow(QMainWindow):
@@ -13,7 +27,10 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
 
         self._init_window()
-        self._init_widget()
+        self._init_central_widget()
+        self._init_ge_widget()
+        self._init_gui_widget()
+
         self._init_timer()
 
     def _init_window(self):
@@ -28,18 +45,35 @@ class MainWindow(QMainWindow):
         window_y = (screen_geometry.height() - window_height) // 2
 
         self.setGeometry(window_x, window_y, window_width, window_height)
+        self.setWindowTitle("Graphics Engine")
+        self.layout = QHBoxLayout()
 
-    def _init_widget(self):
+    def _init_central_widget(self):
+        self.central_widget = QWidget()
+        self.central_widget.setLayout(self.layout)
+        self.setCentralWidget(self.central_widget)
+
+    def _init_ge_widget(self):
         """
         Initializes the widget.
         """
-        self.central_widget = GraphicsEngine()
-        self.setCentralWidget(self.central_widget)
+        self.ge_widget = GraphicsEngine()
+        self.ge_widget.setFixedWidth(GE_WIDGET_CONSTANTS.WIDTH)
+        self.layout.addWidget(self.ge_widget)
+
+    def _init_gui_widget(self):
+        """
+        Initializes the widget.
+        """
+        self.gui_widget = GUI(self.ge_widget)
+        self.gui_widget.setFixedWidth(GUI_WIDGET_CONSTANTS.WIDTH)
+        self.layout.addWidget(self.gui_widget)
 
     def _init_timer(self):
         """
         Initializes the timer.
         """
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.central_widget.update)
+        self.timer.timeout.connect(self.ge_widget.update)
+        self.timer.timeout.connect(self.gui_widget.check_dropdown)
         self.timer.start(10)

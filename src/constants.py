@@ -16,6 +16,24 @@ class WINDOW_CONSTANTS:
     FPS: int = 60
 
 
+class GE_WIDGET_CONSTANTS:
+    """
+    Constants for window config.
+    """
+
+    WIDTH: int = 1200
+    HEIGHT: int = 900
+
+
+class GUI_WIDGET_CONSTANTS:
+    """
+    Constants for window config.
+    """
+
+    WIDTH: int = 400
+    HEIGHT: int = 900
+
+
 class OPENGL_CONSTANTS:
     """
     Constants for opengl config.

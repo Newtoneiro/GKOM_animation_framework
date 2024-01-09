@@ -30,6 +30,7 @@ class OpenGLObject(ABC):
         pos: tuple[float] = OPENGL_CONSTANTS.DEFAULT_POSITION,
         rot: tuple[float] = OPENGL_CONSTANTS.DEFAULT_ROTATION,
         scale: tuple[float] = OPENGL_CONSTANTS.DEFAULT_SCALE,
+        name: str = "unnamed"
     ) -> None:
         self._app = app
         self._pos = pos
@@ -39,6 +40,7 @@ class OpenGLObject(ABC):
         self._mgl_context = app.mgl_context
         self._shader_program = shader_program
         self.texture = texture_path
+        self._name = name
 
         if pre_render:
             self._pre_render()
@@ -172,9 +174,9 @@ class OpenGLObject(ABC):
         Returns:
             np.ndarray: The model rotation matrix for the OpenGlObject.
         """
-        m_model = glm.rotate(m_model, self._rot.x, glm.vec3(1, 0, 0))
-        m_model = glm.rotate(m_model, self._rot.y, glm.vec3(0, 1, 0))
-        m_model = glm.rotate(m_model, self._rot.z, glm.vec3(0, 0, 1))
+        m_model = glm.rotate(m_model, self._rot[0], glm.vec3(1, 0, 0))
+        m_model = glm.rotate(m_model, self._rot[1], glm.vec3(0, 1, 0))
+        m_model = glm.rotate(m_model, self._rot[2], glm.vec3(0, 0, 1))
         return m_model
 
     def _get_scaling_matrix(self, m_model) -> np.ndarray:
@@ -291,7 +293,7 @@ class OpenGLObject(ABC):
             self._pre_render()
 
         self._write_shader()
-        self.update()  # tmp to show the spin
+        # self.update()  # tmp to show the spin
         self._vao.render()
 
     def destroy(self) -> None:

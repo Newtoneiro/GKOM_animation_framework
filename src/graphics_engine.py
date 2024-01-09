@@ -7,7 +7,7 @@ import sys
 import moderngl as mgl
 
 from src.camera import Camera
-from src.constants import OPENGL_CONSTANTS, WINDOW_CONSTANTS
+from src.constants import OPENGL_CONSTANTS, GE_WIDGET_CONSTANTS
 from src.light import Light
 from src.objects.cube import Cube
 from src.objects.model_3d import Model3D
@@ -25,13 +25,17 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
     def __init__(
         self, parent=None
     ) -> None:
-        self._win_size = (WINDOW_CONSTANTS.WIDTH, WINDOW_CONSTANTS.HEIGHT)
+        self._win_size = (
+            GE_WIDGET_CONSTANTS.WIDTH,
+            GE_WIDGET_CONSTANTS.HEIGHT
+            )
         self._time = 0
         self._parent = parent
         self._key_pressed = None
         self._mouse = [0, 0]
         self._mouse_move = [0, 0]
         self._capture_mouse = True
+        self._scene = None
 
         fmt = QtOpenGL.QGLFormat()
         fmt.setVersion(3, 3)
@@ -76,19 +80,22 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
                 pos=(-2.5, 0, 0),
                 rot=(45, 0, 0),
                 scale=(1, 2, 1),
+                name="Cube 1"
             ),
             Cube(
                 self,
                 texture_path="src/textures/crate.png",
                 pos=(2.5, 0, 0),
-                rot=(0, 0, 45),
+                rot=(0, 0, -45),
                 scale=(1, 1, 2),
+                name="Cube 2"
             ),
             Model3D(
                 self,
                 texture_path="src/models/cat/20430_cat_diff_v1.jpg",
                 object_path="src/models/cat/20430_Cat_v1_NEW.obj",
                 scale=(0.2, 0.2, 0.2),
+                name="Model3D 1"
             ),
         ]
 
