@@ -1,22 +1,10 @@
 from PyQt5.QtWidgets import QMainWindow, QApplication, QHBoxLayout, QWidget
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QPalette, QColor
 
 from src.graphics_engine import GraphicsEngine
 from src.gui import GUI
 from src.constants import (
     WINDOW_CONSTANTS, GE_WIDGET_CONSTANTS, GUI_WIDGET_CONSTANTS)
-
-
-class Color(QWidget):
-
-    def __init__(self, color):
-        super(Color, self).__init__()
-        self.setAutoFillBackground(True)
-
-        palette = self.palette()
-        palette.setColor(QPalette.Window, QColor(color))
-        self.setPalette(palette)
 
 
 class MainWindow(QMainWindow):
@@ -75,5 +63,5 @@ class MainWindow(QMainWindow):
         """
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.ge_widget.update)
-        self.timer.timeout.connect(self.gui_widget.check_dropdown)
+        self.timer.timeout.connect(self.gui_widget.update)
         self.timer.start(10)
