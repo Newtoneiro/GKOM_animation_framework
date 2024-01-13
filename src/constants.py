@@ -81,3 +81,18 @@ class LIGHT_CONSTANTS:
     DEFAULT_LIGHT_SPECULAR: float = 1.0
     DEFAULT_LIGHT_COLOR: glm.vec3 = glm.vec3(1, 1, 1)
     DEFAULT_LIGHT_POSITION: glm.vec3 = glm.vec3(0, 30, 10)
+
+
+class PROPERTIES_CONSTANTS:
+    """
+    Constants for manipulating object properties.
+    """
+
+    POSITION_MIN: float = -200
+    POSITION_MAX: float = 200
+    ROTATION_MIN: float = -180
+    ROTATION_MAX: float = 180
+    SCALE_MIN: float = 0
+    SCALE_MAX: float = 100
+    LIGHT_POSITION_MIN: float = -500
+    LIGHT_POSITION_MAX: float = 500

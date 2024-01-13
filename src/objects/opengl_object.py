@@ -229,15 +229,10 @@ class OpenGLObject(ABC):
         Args:
             texture_path (str): The path to the texture.
         """
-        # Open the image using Pillow (PIL)
         image = Image.open(texture_path)
-        # Flip the image because OpenGL's y-axis is inverted
         image = image.transpose(Image.FLIP_TOP_BOTTOM)
-        # Convert the image to RGB mode (if not already)
         image = image.convert("RGB")
-        # Get image data as bytes
         image_data = image.tobytes()
-        # Create the moderngl texture
         texture = self._mgl_context.texture(
             size=image.size,
             components=3,

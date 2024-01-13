@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QHBoxLayout, QWidget
 from PyQt5.QtCore import QTimer
 
 from src.graphics_engine import GraphicsEngine
-from src.gui import GUI
+from src.window.gui import GUI
 from src.constants import (
     WINDOW_CONSTANTS, GE_WIDGET_CONSTANTS, GUI_WIDGET_CONSTANTS)
 
