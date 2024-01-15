@@ -1,3 +1,7 @@
+"""
+This module contains the AddBlockWindow class.
+"""
+
 from PyQt5.QtWidgets import (
     QGridLayout,
     QLabel,
@@ -11,6 +15,9 @@ from PyQt5.QtWidgets import (
 
 
 class AddBlockWindow(QDialog):
+    """
+    Class for the add block window.
+    """
     def __init__(self, parent=None):
         super(AddBlockWindow, self).__init__(parent)
         self.hidden_elements = []
@@ -19,9 +26,14 @@ class AddBlockWindow(QDialog):
         self.custom_model_button = QRadioButton('custom model')
         self.texture_path_input = QLineEdit()
         self.object_path_input = QLineEdit()
-        self.init_ui()
+        self._init_ui()
 
-    def init_ui(self):
+    # ====== INITIALIZATION ====== #
+
+    def _init_ui(self) -> None:
+        """
+        Initializes the window.
+        """
         self.setWindowTitle('add block')
         self.layout = QGridLayout(self)
 
@@ -55,12 +67,31 @@ class AddBlockWindow(QDialog):
             grid_col=0
         )
 
-    def create_input(self, label_text, line_edit, grid_row, grid_col):
+    # ====== PUBLIC METHODS ====== #
+
+    def create_input(
+        self,
+        label_text: str,
+        line_edit: QLineEdit,
+        grid_row: int,
+        grid_col: int
+    ) -> None:
+        """
+        Creates an input element.
+        """
         label = QLabel(label_text)
         self.layout.addWidget(label, grid_row, grid_col)
         self.layout.addWidget(line_edit, grid_row, grid_col + 1)
 
-    def create_radio_button_group(self, label_text, buttons, grid_row):
+    def create_radio_button_group(
+        self,
+        label_text: str,
+        buttons: list[QRadioButton],
+        grid_row: int
+    ) -> None:
+        """
+        Creates a radio button group.
+        """
         label = QLabel(label_text)
         self.layout.addWidget(label, grid_row, 0)
 
@@ -70,8 +101,15 @@ class AddBlockWindow(QDialog):
             button_group.addButton(button)
 
     def create_hidden_elements(
-        self, label_text, line_edit, button_callback, grid_row
-    ):
+        self,
+        label_text: str,
+        line_edit: QLineEdit,
+        button_callback: callable,
+        grid_row: int
+    ) -> None:
+        """
+        Creates hidden elements.
+        """
         label = QLabel(label_text)
         line_edit.setReadOnly(True)
         button = QPushButton('select')
@@ -85,7 +123,15 @@ class AddBlockWindow(QDialog):
         for element in self.hidden_elements:
             element.setVisible(False)
 
-    def create_confirm_buttons(self, label_text, grid_row, grid_col):
+    def create_confirm_buttons(
+        self,
+        label_text: str,
+        grid_row: int,
+        grid_col: int
+    ) -> None:
+        """
+        Creates confirm buttons.
+        """
         accept_label = QLabel(label_text)
         ok_button = QPushButton('ok')
         cancel_button = QPushButton('cancel')
@@ -95,15 +141,28 @@ class AddBlockWindow(QDialog):
         self.layout.addWidget(ok_button, grid_row + 1, grid_col)
         self.layout.addWidget(cancel_button, grid_row + 1, grid_col + 1)
 
-    def choose_texture_path(self):
+    def choose_texture_path(self) -> None:
+        """
+        Opens the file dialog to choose the texture path.
+        """
         file_ext = "JPEG Files (*.jpg);;All Files (*)"
         self.choose_file_path(self.texture_path_input, file_ext)
 
-    def choose_object_path(self):
+    def choose_object_path(self) -> None:
+        """
+        Opens the file dialog to choose the object path.
+        """
         file_ext = "Wavefront OBJ Files (*.obj);;All Files (*)"
         self.choose_file_path(self.object_path_input, file_ext)
 
-    def choose_file_path(self, line_edit, file_ext):
+    def choose_file_path(
+        self,
+        line_edit: QLineEdit,
+        file_ext: str
+    ) -> None:
+        """
+        Opens the file dialog to choose the file path.
+        """
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_name, _ = QFileDialog.getOpenFileName(
@@ -117,6 +176,9 @@ class AddBlockWindow(QDialog):
             line_edit.setText(file_name)
 
     def enable_input(self):
+        """
+        Enables the input elements.
+        """
         is_default_cube_checked = self.default_cube_button.isChecked()
         for element in self.hidden_elements:
             element.setVisible(not is_default_cube_checked)

@@ -73,7 +73,10 @@ class Camera:
             self._position, self._position + self._forward, self._up
         )
 
-    def _move(self):
+    def _move(self) -> None:
+        """
+        Moves the camera.
+        """
         velocity = CAMERA_CONSTANTS.DEFAULT_CAMERA_SPEED * 3
         direction = self._app._key_pressed
         if direction == Qt.Key_W:
@@ -101,7 +104,10 @@ class Camera:
             self._position[1] -= velocity * self._up[1]
             self._position[2] -= velocity * self._up[2]
 
-    def _rotate(self):
+    def _rotate(self) -> None:
+        """
+        Rotates the camera.
+        """
         x, y = self._app._mouse_move
         self._yaw += x * CAMERA_CONSTANTS.DEFAULT_CAMERA_SENSITIVITY / 50
         self._pitch -= y * CAMERA_CONSTANTS.DEFAULT_CAMERA_SENSITIVITY / 50

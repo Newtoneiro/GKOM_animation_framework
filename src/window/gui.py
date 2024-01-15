@@ -16,10 +16,11 @@ from src.window.add_block_window import AddBlockWindow
 from src.objects.cube import Cube
 from src.objects.model_3d import Model3D
 from src.constants import OPENGL_CONSTANTS, PROPERTIES_CONSTANTS
+from src.graphics_engine import GraphicsEngine
 
 
 class GUI(QWidget):
-    def __init__(self, ge, parent=None):
+    def __init__(self, ge: GraphicsEngine):
         super(GUI, self).__init__()
         self.ge = ge
         self.selected_object = None
@@ -72,18 +73,24 @@ class GUI(QWidget):
 
     # ====== GUI ELEMENTS' CREATION ====== #
 
-    def create_label(self, text, grid_row) -> None:
+    def create_label(self, text: str, grid_row: int) -> None:
         label = QLabel(text)
         label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         self.layout.addWidget(label, grid_row, 0)
 
-    def create_dropdown(self, grid_row) -> None:
+    def create_dropdown(self, grid_row: int) -> None:
         self.dropdown = QComboBox(self)
         self.layout.addWidget(self.dropdown, grid_row, 1)
         self.dropdown.currentIndexChanged.connect(self.on_selection_change)
 
     def create_properties(
-            self, target, property_name, step, min_value, max_value, grid_row
+            self,
+            target: str,
+            property_name: str,
+            step: float,
+            min_value: float,
+            max_value: float,
+            grid_row: int
     ) -> None:
         for comp in ['x', 'y', 'z']:
             label = QLabel(f'{comp}:')
@@ -101,19 +108,19 @@ class GUI(QWidget):
                 comp=comp: self.on_property_change(target, prop, comp, value)
             )
 
-    def create_remove_button(self, grid_row) -> None:
+    def create_remove_button(self, grid_row: int) -> None:
         self.remove_button = QPushButton("remove current block")
         self.remove_button.clicked.connect(self.on_remove_button_click)
         self.layout.addWidget(self.remove_button, grid_row, 0)
 
-    def create_add_button(self, grid_row) -> None:
+    def create_add_button(self, grid_row: int) -> None:
         self.add_button = QPushButton("add new block")
         self.add_button.clicked.connect(self.on_add_button_click)
         self.layout.addWidget(self.add_button, grid_row, 1)
 
     # ====== GUI ELEMENTS' ACTIONS ====== #
 
-    def on_selection_change(self, index) -> None:
+    def on_selection_change(self, _) -> None:
         selected_option = self.sender().currentText()
         self.selected_object = next(
             (obj for obj in self.ge._scene if obj._name == selected_option),
@@ -137,7 +144,12 @@ class GUI(QWidget):
                     spin_box_value = prop_values[components.index(comp)]
                     self.properties_dict[spin_box_key].setValue(spin_box_value)
 
-    def on_property_change(self, target, property_name, comp, value) -> None:
+    def on_property_change(
+            self,
+            target: str,
+            property_name: str,
+            comp: int,
+            value: float) -> None:
         obj = self.ge._light if target == 'light' else self.selected_object
         prop = getattr(obj, f'_{property_name}')
 
@@ -201,7 +213,7 @@ class GUI(QWidget):
         self.selected_object.destroy()
         self.update_dropdown()
 
-    def add_cube(self, block_name):
+    def add_cube(self, block_name: str):
         cube = Cube(
             self.ge,
             texture_path="src/textures/crate.png",
@@ -212,7 +224,12 @@ class GUI(QWidget):
         )
         self.add_block(block_name, cube)
 
-    def add_other(self, block_name, texture_path, object_path):
+    def add_other(
+            self,
+            block_name: str,
+            texture_path: str,
+            object_path: str
+    ) -> None:
         model = Model3D(
             self.ge,
             texture_path=texture_path,
@@ -224,7 +241,11 @@ class GUI(QWidget):
         )
         self.add_block(block_name, model)
 
-    def add_block(self, block_name, block):
+    def add_block(
+            self,
+            block_name: str,
+            block: Cube or Model3D
+    ) -> None:
         name_exists = any(obj._name == block_name for obj in self.ge._scene)
         if block_name == "":
             self.name_empty()
@@ -234,7 +255,7 @@ class GUI(QWidget):
             self.ge._scene.insert(0, block)
             self.update_dropdown()
 
-    def name_empty(self):
+    def name_empty(self) -> None:
         QMessageBox.warning(
             self,
             'add block error',
@@ -243,7 +264,7 @@ class GUI(QWidget):
         )
         self.on_add_button_click()
 
-    def name_exists(self):
+    def name_exists(self) -> None:
         QMessageBox.warning(
             self,
             'add block error',

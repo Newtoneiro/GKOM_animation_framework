@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
 
         self._init_timer()
 
-    def _init_window(self):
+    def _init_window(self) -> None:
         """
         Initializes the window.
         """
@@ -36,12 +36,12 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Graphics Engine")
         self.layout = QHBoxLayout()
 
-    def _init_central_widget(self):
+    def _init_central_widget(self) -> None:
         self.central_widget = QWidget()
         self.central_widget.setLayout(self.layout)
         self.setCentralWidget(self.central_widget)
 
-    def _init_ge_widget(self):
+    def _init_ge_widget(self) -> None:
         """
         Initializes the widget.
         """
@@ -49,7 +49,7 @@ class MainWindow(QMainWindow):
         self.ge_widget.setFixedWidth(GE_WIDGET_CONSTANTS.WIDTH)
         self.layout.addWidget(self.ge_widget)
 
-    def _init_gui_widget(self):
+    def _init_gui_widget(self) -> None:
         """
         Initializes the widget.
         """
@@ -57,11 +57,11 @@ class MainWindow(QMainWindow):
         self.gui_widget.setFixedWidth(GUI_WIDGET_CONSTANTS.WIDTH)
         self.layout.addWidget(self.gui_widget)
 
-    def _init_timer(self):
+    def _init_timer(self) -> None:
         """
         Initializes the timer.
         """
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.ge_widget.update)
         self.timer.timeout.connect(self.gui_widget.update)
-        self.timer.start(10)
+        self.timer.start(GE_WIDGET_CONSTANTS.TIME_PER_TICK)

@@ -192,6 +192,9 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
     # ====== PUBLIC METHODS ====== #
 
     def initializeGL(self) -> None:
+        """
+        Initializes the graphics engine.
+        """
         if not (self._init_context()):
             raise RuntimeError("Could not initialize.")
         self._init_camera()
@@ -199,10 +202,16 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
         self._init_light()
 
     def resizeGL(self, w, h) -> None:
+        """
+        Resizes the graphics engine.
+        """
         self._mgl_context.viewport = (0, 0, self.width(), self.height())
 
     def paintGL(self) -> None:
-        self._mgl_context.clear(color=(0.08, 0.16, 0.18, 1))
+        """
+        Paints the graphics engine.
+        """
+        self._mgl_context.clear(color=OPENGL_CONSTANTS.DEFAULT_SCENE_COLOUR)
         self._camera.update()
         self._light.update()
         self._render()
@@ -210,19 +219,34 @@ class GraphicsEngine(QtOpenGL.QGLWidget):
         self._mgl_context.finish()
 
     def keyPressEvent(self, event: QKeyEvent):
+        """
+        Handles the key press event.
+        """
         self._key_pressed = event.key()
 
     def keyReleaseEvent(self, _: QKeyEvent) -> None:
+        """
+        Handles the key release event.
+        """
         self._key_pressed = None
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
+        """
+        Handles the mouse press event.
+        """
         self._mouse[0] = event.x()
         self._mouse[1] = event.y()
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        """
+        Handles the mouse move event.
+        """
         self._mouse_move[0] = self._mouse[0] - event.x()
         self._mouse_move[1] = self._mouse[1] - event.y()
 
-    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+    def mouseReleaseEvent(self, _: QMouseEvent) -> None:
+        """
+        Handles the mouse release event.
+        """
         self._mouse = [0, 0]
         self._mouse_move = [0, 0]
