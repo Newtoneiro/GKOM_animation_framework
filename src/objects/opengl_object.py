@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 from abc import ABC, abstractmethod
 import numpy as np
 import moderngl as mgl
-import pygame as pg
 import glm
+from PIL import Image
 
 from src.constants import OPENGL_CONSTANTS
 
@@ -30,6 +30,7 @@ class OpenGLObject(ABC):
         pos: tuple[float] = OPENGL_CONSTANTS.DEFAULT_POSITION,
         rot: tuple[float] = OPENGL_CONSTANTS.DEFAULT_ROTATION,
         scale: tuple[float] = OPENGL_CONSTANTS.DEFAULT_SCALE,
+        name: str = "unnamed"
     ) -> None:
         self._app = app
         self._pos = pos
@@ -39,6 +40,7 @@ class OpenGLObject(ABC):
         self._mgl_context = app.mgl_context
         self._shader_program = shader_program
         self.texture = texture_path
+        self._name = name
 
         if pre_render:
             self._pre_render()
@@ -97,7 +99,15 @@ class OpenGLObject(ABC):
         if self._texture is not None:
             vertex_array = self._mgl_context.vertex_array(
                 self._shader_program,
-                [(self._vbo, "2f 3f 3f", "in_texcoord_0", "in_normal", "in_position")],
+                [
+                    (
+                        self._vbo,
+                        "2f 3f 3f",
+                        "in_texcoord_0",
+                        "in_normal",
+                        "in_position"
+                    )
+                ],
             )
         else:
             vertex_array = self._mgl_context.vertex_array(
@@ -123,7 +133,8 @@ class OpenGLObject(ABC):
             fragment_shader_source = f.read()
 
         program = self._mgl_context.program(
-            vertex_shader=vertex_shader_source, fragment_shader=fragment_shader_source
+            vertex_shader=vertex_shader_source,
+            fragment_shader=fragment_shader_source
         )
 
         return program
@@ -163,9 +174,9 @@ class OpenGLObject(ABC):
         Returns:
             np.ndarray: The model rotation matrix for the OpenGlObject.
         """
-        m_model = glm.rotate(m_model, self._rot.x, glm.vec3(1, 0, 0))
-        m_model = glm.rotate(m_model, self._rot.y, glm.vec3(0, 1, 0))
-        m_model = glm.rotate(m_model, self._rot.z, glm.vec3(0, 0, 1))
+        m_model = glm.rotate(m_model, self._rot[0], glm.vec3(1, 0, 0))
+        m_model = glm.rotate(m_model, self._rot[1], glm.vec3(0, 1, 0))
+        m_model = glm.rotate(m_model, self._rot[2], glm.vec3(0, 0, 1))
         return m_model
 
     def _get_scaling_matrix(self, m_model) -> np.ndarray:
@@ -210,21 +221,22 @@ class OpenGLObject(ABC):
 
     def _load_texture(self, texture_path: str) -> mgl.Texture:
         """
-        Returns the texture for the OpenGlObject.
+        Returns the texture for the OpenGL object.
 
         Returns:
-            mgl.Texture: The texture for the OpenGlObject.
+            mgl.Texture: The texture for the OpenGL object.
 
         Args:
             texture_path (str): The path to the texture.
         """
-        texture = pg.image.load(texture_path).convert()
-        # Flip because Pygame's y-axis is inverted
-        texture = pg.transform.flip(texture, flip_x=False, flip_y=True)
+        image = Image.open(texture_path)
+        image = image.transpose(Image.FLIP_TOP_BOTTOM)
+        image = image.convert("RGB")
+        image_data = image.tobytes()
         texture = self._mgl_context.texture(
-            size=texture.get_size(),
+            size=image.size,
             components=3,
-            data=pg.image.tostring(texture, "RGB"),
+            data=image_data,
         )
         return texture
 
@@ -263,7 +275,7 @@ class OpenGLObject(ABC):
         """
         Spins the OpenGlObject.
         """
-        m_model = glm.rotate(self.m_model, self._app.time, glm.vec3(0, 1, 0))
+        m_model = glm.rotate(self.m_model, self._app._time, glm.vec3(0, 1, 0))
         self._shader_program["m_model"].write(m_model)
         self._shader_program["m_view"].write(self._app.camera.m_view)
         self._shader_program["camPos"].write(self._app.camera._position)
@@ -276,7 +288,7 @@ class OpenGLObject(ABC):
             self._pre_render()
 
         self._write_shader()
-        self.update()  # tmp to show the spin
+        # self.update()  # tmp to show the spin
         self._vao.render()
 
     def destroy(self) -> None:

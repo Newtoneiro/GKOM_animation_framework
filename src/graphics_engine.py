@@ -5,70 +5,46 @@ import logging
 import sys
 
 import moderngl as mgl
-import pygame as pg
 
 from src.camera import Camera
-from src.constants import OPENGL_CONSTANTS, PYGAME_CONSTANTS
+from src.constants import OPENGL_CONSTANTS, GE_WIDGET_CONSTANTS
 from src.light import Light
 from src.objects.cube import Cube
 from src.objects.model_3d import Model3D
 
+from PyQt5 import QtOpenGL
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QKeyEvent, QMouseEvent
 
-class GraphicsEngine:
+
+class GraphicsEngine(QtOpenGL.QGLWidget):
     """
     Abstract class for the graphics engine.
     """
 
     def __init__(
-        self, win_size: tuple[int] = (PYGAME_CONSTANTS.WIDTH, PYGAME_CONSTANTS.HEIGHT)
+        self, parent=None
     ) -> None:
-        self._win_size = win_size
-
+        self._win_size = (
+            GE_WIDGET_CONSTANTS.WIDTH,
+            GE_WIDGET_CONSTANTS.HEIGHT
+            )
         self._time = 0
-        self._delta_time = 0
+        self._parent = parent
+        self._key_pressed = None
+        self._mouse = [0, 0]
+        self._mouse_move = [0, 0]
+        self._capture_mouse = True
+        self._scene = None
 
-        # Initialize prequisites
-        if not all([self._init_pygame(), self._init_context()]):
-            raise RuntimeError("Could not initialize.")
-
-        self._init_camera()
-        self._init_scene()
-        self._init_light()
+        fmt = QtOpenGL.QGLFormat()
+        fmt.setVersion(3, 3)
+        fmt.setProfile(QtOpenGL.QGLFormat.CoreProfile)
+        fmt.setSampleBuffers(True)
+        super(GraphicsEngine, self).__init__(fmt, None)
+        self.setFocusPolicy(Qt.StrongFocus)
 
     # ====== INITIALIZATION ====== #
-
-    def _init_pygame(self) -> bool:
-        """
-        Initializes pygame.
-
-        Returns:
-            bool: True if pygame was initialized successfully, False otherwise.
-        """
-        try:
-            pg.init()
-            # Set the OpenGL versions
-            pg.display.gl_set_attribute(
-                pg.GL_CONTEXT_MAJOR_VERSION, OPENGL_CONSTANTS.GL_CONTEXT_MAJOR_VERSION
-            )
-            pg.display.gl_set_attribute(
-                pg.GL_CONTEXT_MINOR_VERSION, OPENGL_CONSTANTS.GL_CONTEXT_MINOR_VERSION
-            )
-            pg.display.gl_set_attribute(
-                pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE
-            )
-            # Create the context
-            pg.display.set_mode(self._win_size, flags=pg.DOUBLEBUF | pg.OPENGL)
-            # Capture mouse
-            pg.event.set_grab(True)
-            pg.mouse.set_visible(False)
-            # Create clock object for time management
-            self._clock = pg.time.Clock()
-
-        except pg.error as err:
-            logging.error(f"Could not initialize pygame: {err}")
-            return False
-
-        return True
 
     def _init_context(self) -> bool:
         """
@@ -104,19 +80,22 @@ class GraphicsEngine:
                 pos=(-2.5, 0, 0),
                 rot=(45, 0, 0),
                 scale=(1, 2, 1),
+                name="Cube 1"
             ),
             Cube(
                 self,
                 texture_path="src/textures/crate.png",
                 pos=(2.5, 0, 0),
-                rot=(0, 0, 45),
+                rot=(0, 0, -45),
                 scale=(1, 1, 2),
+                name="Cube 2"
             ),
             Model3D(
                 self,
                 texture_path="src/models/cat/20430_cat_diff_v1.jpg",
                 object_path="src/models/cat/20430_Cat_v1_NEW.obj",
                 scale=(0.2, 0.2, 0.2),
+                name="Model3D 1"
             ),
         ]
 
@@ -124,7 +103,7 @@ class GraphicsEngine:
         """
         Initializes the light.
         """
-        self._light = Light()
+        self._light = Light(self)
 
     # ====== PROPERTIES ====== #
 
@@ -137,16 +116,6 @@ class GraphicsEngine:
             float: The time since the last frame.
         """
         return self._time
-
-    @property
-    def delta_time(self) -> float:
-        """
-        [READ-ONLY] Returns the delta time.
-
-        Returns:
-            float: The delta time.
-        """
-        return self._delta_time
 
     @property
     def win_size(self) -> tuple[int]:
@@ -188,14 +157,6 @@ class GraphicsEngine:
         """
         return self._light
 
-    def _check_events(self) -> None:
-        """
-        Handles pygame events.
-        """
-        # Key down events
-        for event in pg.event.get():
-            self._event_callbacks.get(event.type, lambda _: None)(event)
-
     def _render(self) -> None:
         """
         Renders the scene.
@@ -203,29 +164,15 @@ class GraphicsEngine:
         self._mgl_context.clear(color=OPENGL_CONSTANTS.DEFAULT_SCENE_COLOUR)
         for obj in self._scene:
             obj.render()
-        pg.display.flip()
 
     def _update_time(self) -> None:
         """
-        Updates the time.
+        Updates the time based on the given ticks.
         """
-        self._time = pg.time.get_ticks() / 1000
-        self._delta_time = self._clock.tick(PYGAME_CONSTANTS.FPS)
+        self._time += 0.01
+        self._time = self._time % 1000
 
     # ====== EVENT CALLBACKS ====== #
-
-    def _init_event_callbacks(self) -> None:
-        """
-        Initializes event callbacks.
-        """
-        self._event_callbacks = {
-            pg.QUIT: lambda _: self._handle_stop(),
-            pg.KEYDOWN: lambda event: self._handle_key_down(event.key),
-        }
-
-        self._key_down_callbacks = {
-            pg.K_ESCAPE: self._handle_stop,
-        }
 
     def _handle_stop(self) -> None:
         """
@@ -233,7 +180,6 @@ class GraphicsEngine:
         """
         for obj in self._scene:
             obj.destroy()
-        pg.quit()
         sys.exit()
 
     def _handle_key_down(self, event_key: int) -> None:
@@ -245,14 +191,62 @@ class GraphicsEngine:
 
     # ====== PUBLIC METHODS ====== #
 
-    def run(self) -> None:
+    def initializeGL(self) -> None:
         """
-        Runs the graphics engine.
+        Initializes the graphics engine.
         """
-        self._init_event_callbacks()
-        while True:
-            self._check_events()
-            self._camera.update()
-            self._light.update()
-            self._render()
-            self._update_time()
+        if not (self._init_context()):
+            raise RuntimeError("Could not initialize.")
+        self._init_camera()
+        self._init_scene()
+        self._init_light()
+
+    def resizeGL(self, w, h) -> None:
+        """
+        Resizes the graphics engine.
+        """
+        self._mgl_context.viewport = (0, 0, self.width(), self.height())
+
+    def paintGL(self) -> None:
+        """
+        Paints the graphics engine.
+        """
+        self._mgl_context.clear(color=OPENGL_CONSTANTS.DEFAULT_SCENE_COLOUR)
+        self._camera.update()
+        self._light.update()
+        self._render()
+        self._update_time()
+        self._mgl_context.finish()
+
+    def keyPressEvent(self, event: QKeyEvent):
+        """
+        Handles the key press event.
+        """
+        self._key_pressed = event.key()
+
+    def keyReleaseEvent(self, _: QKeyEvent) -> None:
+        """
+        Handles the key release event.
+        """
+        self._key_pressed = None
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        """
+        Handles the mouse press event.
+        """
+        self._mouse[0] = event.x()
+        self._mouse[1] = event.y()
+
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        """
+        Handles the mouse move event.
+        """
+        self._mouse_move[0] = self._mouse[0] - event.x()
+        self._mouse_move[1] = self._mouse[1] - event.y()
+
+    def mouseReleaseEvent(self, _: QMouseEvent) -> None:
+        """
+        Handles the mouse release event.
+        """
+        self._mouse = [0, 0]
+        self._mouse_move = [0, 0]

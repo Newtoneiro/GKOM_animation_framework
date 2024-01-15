@@ -6,14 +6,33 @@ Constants defined for other files.
 import glm
 
 
-class PYGAME_CONSTANTS:
+class WINDOW_CONSTANTS:
     """
-    Constants for pygame config.
+    Constants for window config.
     """
 
     WIDTH: int = 1600
     HEIGHT: int = 900
     FPS: int = 60
+
+
+class GE_WIDGET_CONSTANTS:
+    """
+    Constants for window config.
+    """
+
+    WIDTH: int = 1200
+    HEIGHT: int = 900
+    TIME_PER_TICK: int = 1000 // WINDOW_CONSTANTS.FPS
+
+
+class GUI_WIDGET_CONSTANTS:
+    """
+    Constants for window config.
+    """
+
+    WIDTH: int = 400
+    HEIGHT: int = 900
 
 
 class OPENGL_CONSTANTS:
@@ -41,8 +60,8 @@ class CAMERA_CONSTANTS:
     DEFAULT_CAMERA_FOV: float = 50.0
     DEFAULT_CAMERA_NEAR_TRESHOLD: float = 0.1
     DEFAULT_CAMERA_FAR_TRESHOLD: float = 100.0
-    DEFAULT_CAMERA_SPEED: float = 0.01
-    DEFAULT_CAMERA_SENSITIVITY: float = 0.05
+    DEFAULT_CAMERA_SPEED: float = 0.2
+    DEFAULT_CAMERA_SENSITIVITY: float = 0.2
 
     DEFAULT_CAMERA_POSITION: glm.vec3 = glm.vec3(0, 0, 4)
     DEFAULT_CAMERA_FORWARD: glm.vec3 = glm.vec3(0, 0, -1)
@@ -63,3 +82,18 @@ class LIGHT_CONSTANTS:
     DEFAULT_LIGHT_SPECULAR: float = 1.0
     DEFAULT_LIGHT_COLOR: glm.vec3 = glm.vec3(1, 1, 1)
     DEFAULT_LIGHT_POSITION: glm.vec3 = glm.vec3(0, 30, 10)
+
+
+class PROPERTIES_CONSTANTS:
+    """
+    Constants for manipulating object properties.
+    """
+
+    POSITION_MIN: float = -200
+    POSITION_MAX: float = 200
+    ROTATION_MIN: float = -180
+    ROTATION_MAX: float = 180
+    SCALE_MIN: float = 0
+    SCALE_MAX: float = 100
+    LIGHT_POSITION_MIN: float = -500
+    LIGHT_POSITION_MAX: float = 500

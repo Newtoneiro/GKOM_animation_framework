@@ -29,9 +29,13 @@ class Model3D(OpenGLObject):
         pos: tuple[float] = OPENGL_CONSTANTS.DEFAULT_POSITION,
         rot: tuple[float] = OPENGL_CONSTANTS.DEFAULT_ROTATION,
         scale: tuple[float] = OPENGL_CONSTANTS.DEFAULT_SCALE,
+        name: str = "unnamed"
     ) -> None:
         self._object_path = object_path
-        super().__init__(app, shader_program, pre_render, texture_path, pos, rot, scale)
+        super().__init__(
+            app, shader_program, pre_render, texture_path, pos, rot, scale,
+            name
+        )
 
     def _get_vertex_data(self):
         objs = pywavefront.Wavefront(self._object_path, cache=True, parse=True)
