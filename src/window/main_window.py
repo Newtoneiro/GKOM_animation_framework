@@ -11,7 +11,12 @@ from PyQt5.QtCore import QTimer, Qt
 from src.graphics_engine import GraphicsEngine
 from src.window.gui import GUI
 from src.window.gui_animation import GUIAnimation
-from src.constants import WINDOW_CONSTANTS, GE_WIDGET_CONSTANTS, GUI_WIDGET_CONSTANTS
+from src.constants import (
+    WINDOW_CONSTANTS,
+    GE_WIDGET_CONSTANTS,
+    GUI_WIDGET_CONSTANTS,
+    GUI_ANIMATION_WIDGET_CONSTANTS,
+)
 
 
 class MainWindow(QMainWindow):
@@ -74,7 +79,7 @@ class MainWindow(QMainWindow):
         Initializes the widget
         """
         self.gui_animation_widget = GUIAnimation(self.gui_widget)
-        # self.gui_animation_widget.setFixedHeight()
+        self.gui_animation_widget.setFixedHeight(GUI_ANIMATION_WIDGET_CONSTANTS.HEIGHT)
         self.layout.addWidget(self.gui_animation_widget)
 
     def _init_timer(self) -> None:

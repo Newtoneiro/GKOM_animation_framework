@@ -35,6 +35,15 @@ class GUI_WIDGET_CONSTANTS:
     HEIGHT: int = 900
 
 
+class GUI_ANIMATION_WIDGET_CONSTANTS:
+    """
+    Constants for window config.
+    """
+
+    WIDTH: int = 1280
+    HEIGHT: int = 120
+
+
 class OPENGL_CONSTANTS:
     """
     Constants for opengl config.
