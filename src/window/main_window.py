@@ -4,9 +4,8 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QVBoxLayout,
     QWidget,
-    QSlider,
 )
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import QTimer
 
 from src.graphics_engine import GraphicsEngine
 from src.window.gui import GUI
@@ -53,6 +52,9 @@ class MainWindow(QMainWindow):
         self.layout.addLayout(self.sublayout)
 
     def _init_central_widget(self) -> None:
+        """
+        Initializes the central widget.
+        """
         self.central_widget = QWidget()
         self.central_widget.setLayout(self.layout)
         self.setCentralWidget(self.central_widget)
@@ -79,7 +81,9 @@ class MainWindow(QMainWindow):
         Initializes the widget
         """
         self.gui_animation_widget = GUIAnimation(self.gui_widget)
-        self.gui_animation_widget.setFixedHeight(GUI_ANIMATION_WIDGET_CONSTANTS.HEIGHT)
+        self.gui_animation_widget.setFixedHeight(
+            GUI_ANIMATION_WIDGET_CONSTANTS.HEIGHT
+        )
         self.layout.addWidget(self.gui_animation_widget)
 
     def _init_timer(self) -> None:

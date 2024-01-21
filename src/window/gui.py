@@ -20,6 +20,9 @@ from src.graphics_engine import GraphicsEngine
 
 
 class GUI(QWidget):
+    """
+    Class for the GUI.
+    """
     def __init__(self, ge: GraphicsEngine):
         super(GUI, self).__init__()
         self.ge = ge
@@ -29,6 +32,9 @@ class GUI(QWidget):
         self.init_ui()
 
     def init_ui(self):
+        """
+        Initializes the GUI.
+        """
         self.layout = QGridLayout(self)
         self.create_label(text="current block:", grid_row=0)
         self.create_dropdown(grid_row=0)
@@ -74,11 +80,24 @@ class GUI(QWidget):
     # ====== GUI ELEMENTS' CREATION ====== #
 
     def create_label(self, text: str, grid_row: int) -> None:
+        """
+        Creates a label.
+
+        Args:
+            text: the text of the label
+            grid_row: the row of the grid
+        """
         label = QLabel(text)
         label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         self.layout.addWidget(label, grid_row, 0)
 
     def create_dropdown(self, grid_row: int) -> None:
+        """
+        Creates a dropdown.
+
+        Args:
+            grid_row: the row of the grid
+        """
         self.dropdown = QComboBox(self)
         self.layout.addWidget(self.dropdown, grid_row, 1)
         self.dropdown.currentIndexChanged.connect(self.on_selection_change)
@@ -92,6 +111,17 @@ class GUI(QWidget):
         max_value: float,
         grid_row: int,
     ) -> None:
+        """
+        Creates the properties.
+
+        Args:
+            target: the target of the properties (object or light)
+            property_name: the name of the property (pos, rot, scale)
+            step: the step of the spinbox
+            min_value: the minimum value of the spinbox
+            max_value: the maximum value of the spinbox
+            grid_row: the row of the grid
+        """
         for comp in ["x", "y", "z"]:
             label = QLabel(f"{comp}:")
             self.layout.addWidget(label, grid_row, 0)
@@ -103,17 +133,31 @@ class GUI(QWidget):
             grid_row += 1
 
             spin_box.valueChanged.connect(
-                lambda value, prop=property_name, comp=comp: self.on_property_change(
+                lambda value, prop=property_name, comp=comp:
+                self.on_property_change(
                     target, prop, comp, value
                 )
             )
 
     def create_remove_button(self, grid_row: int) -> None:
+        """
+        Creates the remove button.
+
+        Args:
+            grid_row: the row of the grid
+        """
+
         self.remove_button = QPushButton("remove current block")
         self.remove_button.clicked.connect(self.on_remove_button_click)
         self.layout.addWidget(self.remove_button, grid_row, 0)
 
     def create_add_button(self, grid_row: int) -> None:
+        """
+        Creates the add button.
+
+        Args:
+            grid_row: the row of the grid
+        """
         self.add_button = QPushButton("add new block")
         self.add_button.clicked.connect(self.on_add_button_click)
         self.layout.addWidget(self.add_button, grid_row, 1)
@@ -121,13 +165,19 @@ class GUI(QWidget):
     # ====== GUI ELEMENTS' ACTIONS ====== #
 
     def on_selection_change(self, _) -> None:
+        """
+        Handles the selection change.
+        """
         selected_option = self.sender().currentText()
         self.selected_object = next(
-            (obj for obj in self.ge._scene if obj._name == selected_option), None
+            (obj for obj in self.ge._scene if obj._name == selected_option),
+            None
         )
 
         if self.selected_object is not None:
-            degrees_rot = tuple(glm.degrees(a) for a in self.selected_object._rot)
+            degrees_rot = tuple(
+                glm.degrees(a) for a in self.selected_object._rot
+            )
             property_groups = {
                 "pos": self.selected_object._pos,
                 "rot": degrees_rot,
@@ -145,6 +195,15 @@ class GUI(QWidget):
     def on_property_change(
         self, target: str, property_name: str, comp: int, value: float
     ) -> None:
+        """
+        Handles the property change.
+
+        Args:
+            target: the target of the properties (object or light)
+            property_name: the name of the property (pos, rot, scale)
+            comp: the component of the property (x, y, z)
+            value: the value of the property
+        """
         obj = self.ge._light if target == "light" else self.selected_object
         prop = getattr(obj, f"_{property_name}")
 
@@ -164,6 +223,9 @@ class GUI(QWidget):
         setattr(obj, f"_{property_name}", new_prop)
 
     def on_remove_button_click(self) -> None:
+        """
+        Handles the remove button click.
+        """
         button = QMessageBox.question(
             self, "remove block", "are you sure you want to remove the block?"
         )
@@ -171,6 +233,9 @@ class GUI(QWidget):
             self.remove_block()
 
     def on_add_button_click(self) -> None:
+        """
+        Handles the add button click.
+        """
         add_popup = AddBlockWindow(self)
         result = add_popup.exec()
 
@@ -186,12 +251,18 @@ class GUI(QWidget):
     # ====== UPDATE STATE ====== #
 
     def update(self):
+        """
+        Updates the state.
+        """
         if self.render_initialized is False and self.ge._scene is not None:
             self.update_dropdown()
             self.render_initialized = True
         self.update_light()
 
     def update_light(self) -> None:
+        """
+        Updates the light.
+        """
         components = ["x", "y", "z"]
         for comp in components:
             spin_box_key = f"light.position.{comp}"
@@ -199,16 +270,25 @@ class GUI(QWidget):
             self.properties_dict[spin_box_key].setValue(spin_box_value)
 
     def update_dropdown(self) -> None:
+        """
+        Updates the dropdown.
+        """
         self.dropdown.clear()
         for obj in self.ge._scene:
             self.dropdown.addItem(obj._name)
 
     def remove_block(self):
+        """
+        Removes the selected block.
+        """
         self.ge._scene.remove(self.selected_object)
         self.selected_object.destroy()
         self.update_dropdown()
 
     def add_cube(self, block_name: str):
+        """
+        Adds a cube.
+        """
         cube = Cube(
             self.ge,
             texture_path="src/textures/crate.png",
@@ -219,7 +299,12 @@ class GUI(QWidget):
         )
         self.add_block(block_name, cube)
 
-    def add_other(self, block_name: str, texture_path: str, object_path: str) -> None:
+    def add_other(
+            self, block_name: str, texture_path: str, object_path: str
+            ) -> None:
+        """
+        Adds an object.
+        """
         model = Model3D(
             self.ge,
             texture_path=texture_path,
@@ -232,6 +317,9 @@ class GUI(QWidget):
         self.add_block(block_name, model)
 
     def add_block(self, block_name: str, block: Cube or Model3D) -> None:
+        """
+        Adds a block.
+        """
         name_exists = any(obj._name == block_name for obj in self.ge._scene)
         if block_name == "":
             self.name_empty()
@@ -242,12 +330,21 @@ class GUI(QWidget):
             self.update_dropdown()
 
     def name_empty(self) -> None:
+        """
+        Handles the empty name error.
+        """
         QMessageBox.warning(
-            self, "add block error", "block name cannot be blank", QMessageBox.Ok
+            self,
+            "add block error",
+            "block name cannot be blank",
+            QMessageBox.Ok
         )
         self.on_add_button_click()
 
     def name_exists(self) -> None:
+        """
+        Handles the existing name error.
+        """
         QMessageBox.warning(
             self,
             "add block error",

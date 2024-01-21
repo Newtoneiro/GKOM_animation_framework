@@ -42,6 +42,8 @@ class GUI_ANIMATION_WIDGET_CONSTANTS:
 
     WIDTH: int = 1280
     HEIGHT: int = 120
+    OUTPUT_FPS: float = 30.0
+    OUTPUT_FILE_NAME: str = "output"
 
 
 class OPENGL_CONSTANTS:
