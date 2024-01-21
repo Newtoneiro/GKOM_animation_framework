@@ -1,16 +1,24 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QHBoxLayout, QWidget
-from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import (
+    QMainWindow,
+    QApplication,
+    QHBoxLayout,
+    QVBoxLayout,
+    QWidget,
+    QSlider,
+)
+from PyQt5.QtCore import QTimer, Qt
 
 from src.graphics_engine import GraphicsEngine
 from src.window.gui import GUI
-from src.constants import (
-    WINDOW_CONSTANTS, GE_WIDGET_CONSTANTS, GUI_WIDGET_CONSTANTS)
+from src.window.gui_animation import GUIAnimation
+from src.constants import WINDOW_CONSTANTS, GE_WIDGET_CONSTANTS, GUI_WIDGET_CONSTANTS
 
 
 class MainWindow(QMainWindow):
     """
     Class for the main window.
     """
+
     def __init__(self):
         super(MainWindow, self).__init__()
 
@@ -18,6 +26,7 @@ class MainWindow(QMainWindow):
         self._init_central_widget()
         self._init_ge_widget()
         self._init_gui_widget()
+        self._init_gui_animation_widget()
 
         self._init_timer()
 
@@ -34,7 +43,9 @@ class MainWindow(QMainWindow):
 
         self.setGeometry(window_x, window_y, window_width, window_height)
         self.setWindowTitle("Graphics Engine")
-        self.layout = QHBoxLayout()
+        self.layout = QVBoxLayout()
+        self.sublayout = QHBoxLayout()
+        self.layout.addLayout(self.sublayout)
 
     def _init_central_widget(self) -> None:
         self.central_widget = QWidget()
@@ -47,7 +58,8 @@ class MainWindow(QMainWindow):
         """
         self.ge_widget = GraphicsEngine()
         self.ge_widget.setFixedWidth(GE_WIDGET_CONSTANTS.WIDTH)
-        self.layout.addWidget(self.ge_widget)
+        self.ge_widget.setFixedHeight(GE_WIDGET_CONSTANTS.HEIGHT)
+        self.sublayout.addWidget(self.ge_widget)
 
     def _init_gui_widget(self) -> None:
         """
@@ -55,7 +67,15 @@ class MainWindow(QMainWindow):
         """
         self.gui_widget = GUI(self.ge_widget)
         self.gui_widget.setFixedWidth(GUI_WIDGET_CONSTANTS.WIDTH)
-        self.layout.addWidget(self.gui_widget)
+        self.sublayout.addWidget(self.gui_widget)
+
+    def _init_gui_animation_widget(self) -> None:
+        """
+        Initializes the widget
+        """
+        self.gui_animation_widget = GUIAnimation(self.gui_widget)
+        # self.gui_animation_widget.setFixedHeight()
+        self.layout.addWidget(self.gui_animation_widget)
 
     def _init_timer(self) -> None:
         """

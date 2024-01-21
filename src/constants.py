@@ -21,8 +21,8 @@ class GE_WIDGET_CONSTANTS:
     Constants for window config.
     """
 
-    WIDTH: int = 1200
-    HEIGHT: int = 900
+    WIDTH: int = 1280
+    HEIGHT: int = 720
     TIME_PER_TICK: int = 1000 // WINDOW_CONSTANTS.FPS
 
 
